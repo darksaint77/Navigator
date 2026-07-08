@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Навигатор Окръжен съд - Добрич</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @keyframes pulse-marker {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pulsing-effect { animation: pulse-marker 1.5s infinite ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-slate-800 text-white text-center py-4 shadow-md">
+        <h1 class="text-xl font-bold tracking-wide">СЪДЕБЕН НАВИГАТОР - ДОБРИЧ</h1>
+        <p class="text-xs text-slate-300 mt-1">Окръжен и Районен съд | Етаж 1</p>
+    </header>
+
+    <main class="flex-1 max-w-md mx-auto w-full p-4 flex flex-col space-y-4">
+        
+        <div class="relative bg-white p-3 rounded-xl shadow-md border border-gray-200">
+            <div class="absolute top-5 left-5 bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow z-10">
+                Етаж 1
+            </div>
+            
+            <div class="relative w-full border border-gray-100 rounded-lg bg-slate-50 mt-1 overflow-hidden">
+                <img id="main-map" src="https://raw.githubusercontent.com/darksaint77/Navigator/main/1-zali.jpg" class="w-full h-auto block" alt="Карта Етаж 1">
+                
+                <div id="map-marker" class="absolute w-6 h-6 bg-red-600 border-2 border-white rounded-full shadow-lg pulsing-effect hidden" style="top: 0%; left: 0%; margin-top: -12px; margin-left: -12px; z-index: 10;">
+                    <div class="w-2 h-2 bg-white rounded-full m-1.5"></div>
+                </div>
+            </div>
+
+            <div id="instruction-box" class="mt-3 bg-amber-50 border-l-4 border-amber-500 p-3 rounded text-sm text-amber-900 font-medium">
+                📍 Изберете дестинация от бутоните по-долу, за да видите местоположението:
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-md border border-gray-200 space-y-2">
+            
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider pt-1">Регистратури и услуги</div>
+            
+            <button onclick="locate('reg_os')" class="w-full bg-slate-700 hover:bg-slate-800 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition flex justify-between items-center text-left">
+                <span>📥 Регистратура Окръжен съд</span>
+            </button>
+
+            <button onclick="locate('reg_rs')" class="w-full bg-slate-700 hover:bg-slate-800 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition flex justify-between items-center text-left">
+                <span>📥 Регистратура Районен съд</span>
+            </button>
+
+            <button onclick="locate('sudimost')" class="w-full bg-slate-700 hover:bg-slate-800 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition flex justify-between items-center text-left">
+                <span>📜 Към Бюро съдимост</span>
+            </button>
+
+            <button onclick="locate('prizovkari')" class="w-full bg-slate-700 hover:bg-slate-800 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition flex justify-between items-center text-left">
+                <span>✉️ Призовкари</span>
+            </button>
+
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider pt-3">Съдебни зали (Етаж 1)</div>
+
+            <button onclick="locate('zala1')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition flex justify-between items-center text-left">
+                <span>⚖️ Заседателна зала 1 - РС</span>
+            </button>
+
+            <button onclick="locate('zala2')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition flex justify-between items-center text-left">
+                <span>⚖️ Заседателна зала 2 - РС</span>
+            </button>
+
+            <button onclick="locate('zala3')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition flex justify-between items-center text-left">
+                <span>⚖️ Заседателна зала 3 - РС</span>
+            </button>
+
+            <button onclick="locate('zala4')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition flex justify-between items-center text-left">
+                <span>⚖️ Заседателна зала 4 - РС</span>
+            </button>
+
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wider pt-3">Вертикална комуникация и изход</div>
+
+            <button onclick="locate('stairs_et2')" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition flex justify-between items-center text-left">
+                <span>🏛️ Към етаж 2 съдебни зали</span>
+            </button>
+
+            <button onclick="locate('exit')" class="w-full bg-stone-600 hover:bg-stone-700 text-white text-sm font-medium py-2.5 px-4 rounded-lg transition flex justify-between items-center text-left">
+                <span>🚪 Изход съдебна палата</span>
+            </button>
+            
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-200 text-center py-3 text-xs text-gray-500 border-t border-gray-300">
+        Окръжен съд Добрич © 2026
+    </footer>
+
+    <script>
+        // Твоите замерени координати едно към едно
+        const targets = {
+            'exit': { x: 94, y: 35, text: "Насочете се към изхода на съдебната палата през пропуска за граждани." },
+            'sudimost': { x: 67, y: 90, text: "Продължете по коридора надолу вдясно към Бюро съдимост." },
+            'stairs_et2': { x: 53, y: 57, text: "Насочете се към централното стълбище, за да се качите към втория етаж със съдебните зали." },
+            'prizovkari': { x: 28, y: 59, text: "Кабинетът на призовкарите се намира на посоченото място на първия етаж." },
+            'zala3': { x: 12, y: 60, text: "Заседателна зала 3 на Районен съд се намира в лявото крило." },
+            'reg_os': { x: 15, y: 29, text: "Регистратурата на Окръжен съд се намира в лявата част на централния салон." },
+            'reg_rs': { x: 24, y: 32, text: "Регистратурата на Районен съд се намира в централния салон." },
+            'zala2': { x: 24, y: 32, text: "Заседателна зала 2 на Районен съд се намира в централната част на етажа." },
+            'zala1': { x: 48, y: 15, text: "Заседателна зала 1 на Районен съд се намира в горния коридор." },
+            'zala4': { x: 70, y: 13, text: "Заседателна зала 4 на Районен съд се намира в горното дясно крило." }
+        };
+
+        function locate(key) {
+            const data = targets[key];
+            if (!data) return;
+
+            const marker = document.getElementById('map-marker');
+            marker.style.left = data.x + "%";
+            marker.style.top = data.y + "%";
+            marker.classList.remove('hidden');
+
+            document.getElementById('instruction-box').innerText = "🚶‍♂️ " + data.text;
+        }
+    </script>
+</body>
+</html>
