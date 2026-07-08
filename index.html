@@ -31,11 +31,14 @@
             z-index: 5;
         }
 
-        /* Контейнер за гладка трансформация */
+        /* ПОПРАВЕНО: Центрирано разположение и симетричен мащаб */
         #zoom-container {
-            transform-origin: 0 0;
+            transform-origin: center center;
             will-change: transform;
             touch-action: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -43,35 +46,29 @@
 
     <header class="bg-slate-800 text-white text-center py-3 shadow-md z-20">
         <h1 class="text-xl font-bold tracking-wide">СЪДЕБЕН НАВИГАТОР - ДОБРИЧ</h1>
-        <p class="text-xs text-slate-300 mt-0.5">Окръжен и Районен съд | Етаж 1</p>
+        <div id="section-label" class="inline-block mt-1 bg-blue-600/80 text-[11px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase transition-colors">
+            Етаж 1 - Зали
+        </div>
     </header>
 
     <main class="flex-1 max-w-md mx-auto w-full p-4 flex flex-col space-y-3">
         
-        <!-- КАРТАТА С КРАСИВ ФИЛТЪР И СВЕТЛИНЕН ЕФЕКТ -->
         <div class="relative bg-white p-3 rounded-2xl shadow-xl border border-gray-100 flex flex-col">
-            <div id="section-label" class="absolute top-5 left-5 bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow z-10 pointer-events-none transition-colors">
-                Етаж 1 - Зали
-            </div>
             
-            <!-- Прозорец на картата -->
-            <div id="map-viewport" class="relative w-full border border-gray-100 rounded-xl bg-slate-50 mt-1 overflow-hidden shadow-inner cursor-grab active:cursor-grabbing" style="height: 290px;">
-                <div id="zoom-container" class="absolute top-0 left-0 min-w-full">
-                    
-                    <!-- Карта с приложен филтър -->
-                    <img id="main-map" src="https://raw.githubusercontent.com/darksaint77/Navigator/main/1-zali.jpg" class="w-full h-auto block select-none premium-map-filter" alt="Карта" draggable="false">
-                    
-                    <!-- Слой за динамичното осветяване (Spotlight) -->
-                    <div id="map-spotlight" class="spotlight-overlay"></div>
+            <div id="map-viewport" class="relative w-full border border-gray-100 rounded-xl bg-slate-100 overflow-hidden shadow-inner cursor-grab active:cursor-grabbing flex items-center justify-center" style="height: 290px;">
+                <div id="zoom-container" class="absolute w-full h-full">
+                    <div class="relative inline-block">
+                        <img id="main-map" src="https://raw.githubusercontent.com/darksaint77/Navigator/main/1-zali.jpg" class="max-w-full max-h-full h-auto block select-none premium-map-filter" alt="Карта" draggable="false">
+                        
+                        <div id="map-spotlight" class="spotlight-overlay"></div>
 
-                    <!-- Пулсиращ маркер -->
-                    <div id="map-marker" class="absolute w-7 h-7 bg-red-500 border-4 border-white rounded-full shadow-2xl pulsing-effect hidden" style="top: 0%; left: 0%; margin-top: -14px; margin-left: -14px; z-index: 10;">
-                        <div class="w-1.5 h-1.5 bg-white rounded-full m-1"></div>
+                        <div id="map-marker" class="absolute w-7 h-7 bg-red-500 border-4 border-white rounded-full shadow-2xl pulsing-effect hidden" style="top: 0%; left: 0%; margin-top: -14px; margin-left: -14px; z-index: 10;">
+                            <div class="w-1.5 h-1.5 bg-white rounded-full m-1"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ИЗНЕСЕНИ КОНТРОЛИ -->
             <div class="flex justify-between items-center mt-2 px-1">
                 <span class="text-[10px] text-slate-400">💡 Използвайте два пръста за увеличение</span>
                 <button onclick="resetZoom()" class="bg-slate-100 active:bg-slate-200 text-slate-700 text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm border border-gray-200 flex items-center gap-1">
@@ -79,7 +76,6 @@
                 </button>
             </div>
 
-            <!-- Инструкции -->
             <div class="mt-2 bg-slate-50 border-l-4 border-blue-600 p-3 rounded-xl text-xs text-slate-700 flex flex-col space-y-2 shadow-sm">
                 <div id="instruction-text" class="font-medium leading-relaxed">📍 Изберете дестинация от менюто по-долу:</div>
                 <button id="transition-btn" onclick="enterOfisiSection()" class="hidden w-full bg-emerald-600 hover:bg-emerald-700 text-white text-center font-bold py-2.5 px-3 rounded-xl shadow-md transition-all transform active:scale-95">
@@ -88,10 +84,8 @@
             </div>
         </div>
 
-        <!-- КОНТЕНЕР ЗА МЕНЮТАТА -->
         <div class="bg-white p-4 rounded-2xl shadow-xl border border-gray-100 min-h-[210px] flex flex-col justify-start">
             
-            <!-- ГЛАВНО МЕНЮ -->
             <div id="menu-main" class="space-y-2 w-full">
                 <div class="text-xs font-bold text-slate-400 uppercase tracking-wider pb-1">Категории</div>
                 
@@ -116,7 +110,6 @@
                 </button>
             </div>
 
-            <!-- ПОДМЕНЮ: РЕГИСТРАТУРИ И УСЛУГИ -->
             <div id="menu-services" class="space-y-2 w-full hidden">
                 <div class="flex justify-between items-center pb-1">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Регистратури и услуги</span>
@@ -129,7 +122,6 @@
                 <button onclick="locate('prizovkari')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">✉️ Призовкари</button>
             </div>
 
-            <!-- ПОДМЕНЮ: СЪДЕБНИ ЗАЛИ -->
             <div id="menu-halls" class="space-y-2 w-full hidden">
                 <div class="flex justify-between items-center pb-1">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Избор на зала</span>
@@ -142,7 +134,6 @@
                 <button onclick="locate('zala4')" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-emerald-200/60 transition">⚖️ Заседателна зала 4 - РС</button>
             </div>
 
-            <!-- СПЕЦИАЛНО МЕНЮ ПРИ ПРЕСТОЙ В БЮРО СЪДИМОСТ -->
             <div id="menu-back-to-main" class="space-y-2 w-full hidden flex-1 flex flex-col justify-center">
                 <p class="text-xs text-slate-400 text-center mb-2">Намирате се в сектор Офиси / Бюро съдимост</p>
                 <button onclick="exitOfisiSection()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition text-center">
@@ -188,6 +179,7 @@
             updateTransform();
         });
 
+        // Математика за плавно и центрирано местене/зуумване
         function updateTransform() {
             if (scale < 1) scale = 1;
             if (scale > 4) scale = 4;
@@ -196,15 +188,14 @@
                 pointX = 0;
                 pointY = 0;
             } else {
-                const maxX = 0;
-                const minX = viewport.offsetWidth - (viewport.offsetWidth * scale);
-                const maxY = 0;
-                const minY = viewport.offsetHeight - (mapImg.offsetHeight * scale);
-                
-                if (pointX > maxX) pointX = maxX;
-                if (pointX < minX) pointX = minX;
-                if (pointY > maxY) pointY = maxY;
-                if (pointY < minY) pointY = minY;
+                // Изчисляване на границите спрямо центрирания мащаб
+                const boundX = (viewport.offsetWidth * scale - viewport.offsetWidth) / 2;
+                const boundY = (viewport.offsetHeight * scale - viewport.offsetHeight) / 2;
+
+                if (pointX > boundX) pointX = boundX;
+                if (pointX < -boundX) pointX = -boundX;
+                if (pointY > boundY) pointY = boundY;
+                if (pointY < -boundY) pointY = -boundY;
             }
 
             container.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
@@ -229,13 +220,10 @@
 
         viewport.addEventListener('wheel', (e) => {
             e.preventDefault();
-            const xs = (e.clientX - pointX) / scale;
-            const ys = (e.clientY - pointY) / scale;
+            let zoomFactor = 1.1;
+            if (e.deltaY > 0) zoomFactor = 1 / zoomFactor;
             
-            if (e.deltaY < 0) { scale *= 1.1; } else { scale /= 1.1; }
-            
-            pointX = e.clientX - xs * scale;
-            pointY = e.clientY - ys * scale;
+            scale *= zoomFactor;
             updateTransform();
         });
 
@@ -264,20 +252,9 @@
                     e.touches[0].clientX - e.touches[1].clientX,
                     e.touches[0].clientY - e.touches[1].clientY
                 );
-                
                 const factor = dist / touchStartDist;
                 touchStartDist = dist;
-                
-                const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-                const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                
-                const xs = (midX - pointX) / scale;
-                const ys = (midY - pointY) / scale;
-                
                 scale *= factor;
-                pointX = midX - xs * scale;
-                pointY = midY - ys * scale;
-                
                 updateTransform();
             }
         });
@@ -291,20 +268,19 @@
             updateTransform();
         }
 
-        /* ПОПРАВЕНО: Координатите за zala2 вече са точни */
         const targets = {
-   	 'exit': { map: 'zali', x: 94, y: 35, text: "Насочете се към изхода на съдебната палата през пропуска за граждани." },
-   	 'stairs_et2': { map: 'zali', x: 53, y: 57, text: "Насочете се към централното стълбище, за да се качите към втория етаж." },
-   	 'prizovkari': { map: 'zali', x: 28, y: 59, text: "Кабинетът на призовкарите се намира на първия етаж." },
-   	 'zala3': { map: 'zali', x: 12, y: 60, text: "Заседателна зала 3 на Районен съд се намира в лявото крило." },
-   	 'reg_os': { map: 'zali', x: 15, y: 29, text: "Регистратурата на Окръжен съд се намира в лявата част на централния салон." },
-  	  'reg_rs': { map: 'zali', x: 24, y: 32, text: "Регистратурата на Районен съд се намира в централния салон." },
-  	  'zala2': { map: 'zali', x: 28, y: 13, text: "Заседателна зала 2 на Районен съд се намира в горния ляв сектор." },
-  	  'zala1': { map: 'zali', x: 48, y: 15, text: "Заседателна зала 1 на Районен съд се намира в горния коридор." },
-  	  'zala4': { map: 'zali', x: 70, y: 13, text: "Заседателна зала 4 на Районен съд се намира в горното дясно крило." },
-   	 'sudimost': { map: 'zali', x: 67, y: 90, text: "Продължете по коридора надолу вдясно към прехода за Бюро съдимост. Когато стигнете там, натиснете бутона по-долу." },
-   	 'sudimost_room': { map: 'ofisi', x: 37, y: 72, text: "Вие сте в секцията с офиси. Бюро съдимост е Стая 105, намираща се в долния коридор." }
-	};
+            'exit': { map: 'zali', x: 94, y: 35, text: "Насочете се към изхода на съдебната палата през пропуска за граждани." },
+            'stairs_et2': { map: 'zali', x: 53, y: 57, text: "Насочете се към централното стълбище, за да се качите към втория етаж." },
+            'prizovkari': { map: 'zali', x: 28, y: 59, text: "Кабинетът на призовкарите се намира на първия етаж." },
+            'zala3': { map: 'zali', x: 12, y: 60, text: "Заседателна зала 3 на Районен съд се намира в лявото крило." },
+            'reg_os': { map: 'zali', x: 15, y: 29, text: "Регистратурата на Окръжен съд се намира в лявата част на централния салон." },
+            'reg_rs': { map: 'zali', x: 24, y: 32, text: "Регистратурата на Районен съд се намира в централния салон." },
+            'zala2': { map: 'zali', x: 28, y: 13, text: "Заседателна зала 2 на Районен съд се намира в горния ляв сектор." },
+            'zala1': { map: 'zali', x: 48, y: 15, text: "Заседателна зала 1 на Районен съд се намира в горния коридор." },
+            'zala4': { map: 'zali', x: 70, y: 13, text: "Заседателна зала 4 на Районен съд се намира в горното дясно крило." },
+            'sudimost': { map: 'zali', x: 67, y: 90, text: "Продължете по коридора надолу вдясно към прехода за Бюро съдимост. Когато стигнете там, натиснете бутона по-долу." },
+            'sudimost_room': { map: 'ofisi', x: 37, y: 72, text: "Вие сте в секцията с офиси. Бюро съдимост е Стая 105, намираща се в долния коридор." }
+        };
 
         function locate(key) {
             const data = targets[key];
@@ -344,15 +320,16 @@
         }
 
         function switchToMap(mapName) {
+            const label = document.getElementById('section-label');
             if (mapName === 'ofisi') {
                 mapImg.src = MAP_OFISI;
-                document.getElementById('section-label').innerText = "Етаж 1 - Офиси";
-                document.getElementById('section-label').className = "absolute top-5 left-5 bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow z-10 pointer-events-none transition-colors";
+                label.innerText = "Етаж 1 - Офиси";
+                label.className = "inline-block mt-1 bg-emerald-600/80 text-[11px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase transition-colors";
                 currentMapState = 'ofisi';
             } else {
                 mapImg.src = MAP_ZALI;
-                document.getElementById('section-label').innerText = "Етаж 1 - Зали";
-                document.getElementById('section-label').className = "absolute top-5 left-5 bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow z-10 pointer-events-none transition-colors";
+                label.innerText = "Етаж 1 - Зали";
+                label.className = "inline-block mt-1 bg-blue-600/80 text-[11px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase transition-colors";
                 currentMapState = 'zali';
             }
             document.getElementById('transition-btn').classList.add('hidden');
