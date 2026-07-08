@@ -27,8 +27,8 @@
     <main class="flex-1 max-w-md mx-auto w-full p-4 flex flex-col space-y-3">
         
         <div class="relative bg-white p-3 rounded-xl shadow-md border border-gray-200">
-            <div class="absolute top-5 left-5 bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow z-10 pointer-events-none">
-                Етаж 1
+            <div id="section-label" class="absolute top-5 left-5 bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow z-10 pointer-events-none">
+                Етаж 1 - Зали
             </div>
 
             <div class="absolute top-5 right-5 flex flex-col space-y-1 z-10">
@@ -39,7 +39,7 @@
             
             <div class="relative w-full border border-gray-100 rounded-lg bg-slate-50 mt-1 overflow-auto no-scrollbar" style="height: 280px;">
                 <div id="zoom-container" class="relative transition-all duration-200 inline-block min-w-full">
-                    <img id="main-map" src="https://raw.githubusercontent.com/darksaint77/Navigator/main/1-zali.jpg" class="w-full h-auto block select-none" alt="Карта Етаж 1">
+                    <img id="main-map" src="https://raw.githubusercontent.com/darksaint77/Navigator/main/1-zali.jpg" class="w-full h-auto block select-none" alt="Карта Съд">
                     
                     <div id="map-marker" class="absolute w-6 h-6 bg-red-600 border-2 border-white rounded-full shadow-lg pulsing-effect hidden" style="top: 0%; left: 0%; margin-top: -12px; margin-left: -12px; z-index: 10;">
                         <div class="w-2 h-2 bg-white rounded-full m-1.5"></div>
@@ -47,8 +47,11 @@
                 </div>
             </div>
 
-            <div id="instruction-box" class="mt-2 bg-amber-50 border-l-4 border-amber-500 p-2.5 rounded text-xs text-amber-900 font-medium">
-                📍 Изберете категория от менюто по-долу:
+            <div class="mt-2 bg-amber-50 border-l-4 border-amber-500 p-2.5 rounded text-xs text-amber-900 flex flex-col space-y-2">
+                <div id="instruction-text">📍 Изберете категория от менюто по-долу:</div>
+                <button id="transition-btn" onclick="enterOfisiSection()" class="hidden w-full bg-emerald-600 hover:bg-emerald-700 text-white text-center font-bold py-2 px-3 rounded shadow transition">
+                    🔎 Влез в коридора (Виж Бюро съдимост)
+                </button>
             </div>
         </div>
 
@@ -102,6 +105,13 @@
                 <button onclick="locate('zala4')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm py-2 px-4 rounded-lg text-left">⚖️ Заседателна зала 4 - РС</button>
             </div>
 
+            <div id="menu-back-to-main" class="space-y-2 w-full hidden flex-1 flex flex-col justify-center">
+                <p class="text-xs text-gray-500 text-center mb-2">Намирате се в сектор Офиси / Бюро съдимост</p>
+                <button onclick="exitOfisiSection()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-lg shadow transition text-center">
+                    ⬅ Върни се в централния салон
+                </button>
+            </div>
+
         </div>
 
     </main>
@@ -111,25 +121,45 @@
     </footer>
 
     <script>
-        const targets = {
-            'exit': { x: 94, y: 35, text: "Насочете се към изхода на съдебната палата през пропуска за граждани." },
-            'sudimost': { x: 67, y: 90, text: "Продължете по коридора надолу вдясно към Бюро съдимост." },
-            'stairs_et2': { x: 53, y: 57, text: "Насочете се към централното стълбище, за да се качите към втория етаж." },
-            'prizovkari': { x: 28, y: 59, text: "Кабинетът на призовкарите се намира на първия етаж." },
-            'zala3': { x: 12, y: 60, text: "Заседателна зала 3 на Районен съд се намира в лявото крило." },
-            'reg_os': { x: 15, y: 29, text: "Регистратурата на Окръжен съд се намира в лявата част на централния салон." },
-            'reg_rs': { x: 24, y: 32, text: "Регистратурата на Районен съд се намира в централния салон." },
-            'zala2': { x: 24, y: 32, text: "Заседателна зала 2 на Районен съд се намира в централната част на етажа." },
-            'zala1': { x: 48, y: 15, text: "Заседателна зала 1 на Районен съд се намира в горния коридор." },
-            'zala4': { x: 70, y: 13, text: "Заседателна зала 4 на Районен съд се намира в горното дясно крило." }
-        };
-
+        const mapImg = document.getElementById('main-map');
         const container = document.getElementById('zoom-container');
+        const marker = document.getElementById('map-marker');
+        
+        let MAP_ZALI = "";
+        let MAP_OFISI = "";
         let originalWidth = 0;
+        let currentMapState = 'zali';
 
+        // Инициализираме всичко СЛЕД като DOM-ът и картинките са напълно готови
         window.addEventListener('load', () => {
             originalWidth = container.offsetWidth;
+            
+            // Сглобяваме динамично пътищата тук, за да няма фатални грешки при старта
+            const baseUrl = mapImg.src.substring(0, mapImg.src.lastIndexOf('/') + 1);
+            MAP_ZALI = mapImg.src;
+            MAP_OFISI = baseUrl + "1-ofisi.jpg";
+
+            // Прелоудваме втората картинка
+            const preloadImage = new Image();
+            preloadImage.src = MAP_OFISI;
         });
+
+        // Координати, актуализирани точно по твоите изисквания
+        const targets = {
+            'exit': { map: 'zali', x: 94, y: 35, text: "Насочете се към изхода на съдебната палата през пропуска за граждани." },
+            'stairs_et2': { map: 'zali', x: 53, y: 57, text: "Насочете се към централното стълбище, за да се качите към втория етаж." },
+            'prizovkari': { map: 'zali', x: 28, y: 59, text: "Кабинетът на призовкарите се намира на първия етаж." },
+            'zala3': { map: 'zali', x: 12, y: 60, text: "Заседателна зала 3 на Районен съд се намира в лявото крило." },
+            'reg_os': { map: 'zali', x: 15, y: 29, text: "Регистратурата на Окръжен съд се намира в лявата част на centralния салон." },
+            'reg_rs': { map: 'zali', x: 24, y: 32, text: "Регистратурата на Районен съд се намира в централния салон." },
+            'zala2': { map: 'zali', x: 24, y: 32, text: "Заседателна зала 2 на Районен съд се намира в централната част на етажа." },
+            'zala1': { map: 'zali', x: 48, y: 15, text: "Заседателна зала 1 на Районен съд се намира в горния коридор." },
+            'zala4': { map: 'zali', x: 70, y: 13, text: "Заседателна зала 4 на Районен съд се намира в горното дясно крило." },
+            'sudimost': { map: 'zali', x: 67, y: 90, text: "Продължете по коридора надолу вдясно към прехода за Бюро съдимост. Когато стигнете там, натиснете бутона по-долу." },
+            
+            // Твоите точни координати за втората карта
+            'sudimost_room': { map: 'ofisi', x: 37, y: 72, text: "Вие сте в секцията с офиси. Бюро съдимост е Стая 105, намираща се в долния коридор." }
+        };
 
         function changeZoom(amount) {
             if (originalWidth === 0) originalWidth = container.parentElement.offsetWidth;
@@ -154,22 +184,58 @@
             const data = targets[key];
             if (!data) return;
 
-            const marker = document.getElementById('map-marker');
+            document.getElementById('transition-btn').classList.add('hidden');
+
+            if (data.map === 'zali' && currentMapState !== 'zali') {
+                switchToMap('zali');
+            }
+
             marker.style.left = data.x + "%";
             marker.style.top = data.y + "%";
             marker.classList.remove('hidden');
 
-            document.getElementById('instruction-box').innerText = "🚶‍♂️ " + data.text;
+            document.getElementById('instruction-text').innerText = "🚶‍♂️ " + data.text;
+
+            if (key === 'sudimost') {
+                document.getElementById('transition-btn').classList.remove('hidden');
+            }
         }
 
-        // Функция за плавна смяна на менютата на същия екран
+        function enterOfisiSection() {
+            switchToMap('ofisi');
+            switchMenu('menu-back-to-main');
+            locate('sudimost_room');
+        }
+
+        function exitOfisiSection() {
+            switchToMap('zali');
+            switchMenu('menu-main');
+            marker.classList.add('hidden');
+            document.getElementById('instruction-text').innerText = "📍 Изберете категория от менюто по-долу:";
+        }
+
+        function switchToMap(mapName) {
+            if (mapName === 'ofisi') {
+                mapImg.src = MAP_OFISI;
+                document.getElementById('section-label').innerText = "Етаж 1 - Офиси";
+                document.getElementById('section-label').className = "absolute top-5 left-5 bg-emerald-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow z-10 pointer-events-none";
+                currentMapState = 'ofisi';
+            } else {
+                mapImg.src = MAP_ZALI;
+                document.getElementById('section-label').innerText = "Етаж 1 - Зали";
+                document.getElementById('section-label').className = "absolute top-5 left-5 bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow z-10 pointer-events-none";
+                currentMapState = 'zali';
+            }
+            document.getElementById('transition-btn').classList.add('hidden');
+            resetZoom();
+        }
+
         function switchMenu(menuId) {
-            // Скриваме всички менюта
             document.getElementById('menu-main').classList.add('hidden');
             document.getElementById('menu-services').classList.add('hidden');
             document.getElementById('menu-halls').classList.add('hidden');
+            document.getElementById('menu-back-to-main').classList.add('hidden');
             
-            // Показваме избраното подменю
             document.getElementById(menuId).classList.remove('hidden');
         }
     </script>
