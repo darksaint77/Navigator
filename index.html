@@ -44,7 +44,6 @@
 </head>
 <body class="bg-gray-50 font-sans min-h-screen flex flex-col overflow-x-hidden select-none">
 
-    <!-- Индикацията за етажа в заглавната лента -->
     <header class="bg-slate-800 text-white text-center py-3 shadow-md z-20">
         <h1 class="text-xl font-bold tracking-wide">СЪДЕБЕН НАВИГАТОР - ДОБРИЧ</h1>
         <div id="section-label" class="inline-block mt-1 bg-blue-600/80 text-[11px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase transition-colors">
@@ -54,20 +53,15 @@
 
     <main class="flex-1 max-w-md mx-auto w-full p-4 flex flex-col space-y-3">
         
-        <!-- КАРТАТА С КРАСИВ ФИЛТЪР И СВЕТЛИНЕН ЕФЕКТ -->
         <div class="relative bg-white p-3 rounded-2xl shadow-xl border border-gray-100 flex flex-col">
             
-            <!-- Прозорец на картата (Перфектно центриран) -->
             <div id="map-viewport" class="relative w-full border border-gray-100 rounded-xl bg-slate-100 overflow-hidden shadow-inner cursor-grab active:cursor-grabbing flex items-center justify-center" style="height: 290px;">
                 <div id="zoom-container" class="absolute w-full h-full">
                     <div class="relative inline-block">
-                        <!-- Карта с приложен филтър -->
                         <img id="main-map" src="https://raw.githubusercontent.com/darksaint77/Navigator/main/1-zali.jpg" class="max-w-full max-h-full h-auto block select-none premium-map-filter" alt="Карта" draggable="false">
                         
-                        <!-- Слой за динамичното осветяване (Spotlight) -->
                         <div id="map-spotlight" class="spotlight-overlay"></div>
 
-                        <!-- Пулсиращ маркер -->
                         <div id="map-marker" class="absolute w-7 h-7 bg-red-500 border-4 border-white rounded-full shadow-2xl pulsing-effect hidden" style="top: 0%; left: 0%; margin-top: -14px; margin-left: -14px; z-index: 10;">
                             <div class="w-1.5 h-1.5 bg-white rounded-full m-1"></div>
                         </div>
@@ -75,7 +69,6 @@
                 </div>
             </div>
 
-            <!-- ИЗНЕСЕНИ КОНТРОЛИ -->
             <div class="flex justify-between items-center mt-2 px-1">
                 <span class="text-[10px] text-slate-400">💡 Използвайте два пръста за увеличение</span>
                 <button onclick="resetZoom()" class="bg-slate-100 active:bg-slate-200 text-slate-700 text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm border border-gray-200 flex items-center gap-1">
@@ -83,26 +76,21 @@
                 </button>
             </div>
 
-            <!-- Инструкции и бутони за преход -->
             <div class="mt-2 bg-slate-50 border-l-4 border-blue-600 p-3 rounded-xl text-xs text-slate-700 flex flex-col space-y-2 shadow-sm">
                 <div id="instruction-text" class="font-medium leading-relaxed">📍 Изберете дестинация от менюто по-долу:</div>
                 
-                <!-- Динамичен бутон за преход към Офиси (Етаж 1) -->
                 <button id="transition-btn" onclick="enterOfisiSection()" class="hidden w-full bg-emerald-600 hover:bg-emerald-700 text-white text-center font-bold py-2.5 px-3 rounded-xl shadow-md transition-all transform active:scale-95">
                     🔎 Влез в коридора (Виж офисите)
                 </button>
                 
-                <!-- Бутон за преход към Етаж 2 по стълбите -->
                 <button id="stairs-btn" onclick="enterFloor2Section()" class="hidden w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center font-bold py-2.5 px-3 rounded-xl shadow-md transition-all transform active:scale-95">
                     🏃‍♂️ Качи се на Етаж 2 (Заседателни зали)
                 </button>
             </div>
         </div>
 
-        <!-- КОНТЕНЕР ЗА МЕНЮТАТА -->
         <div class="bg-white p-4 rounded-2xl shadow-xl border border-gray-100 min-h-[210px] flex flex-col justify-start">
             
-            <!-- ГЛАВНО МЕНЮ (ЕТАЖ 1) -->
             <div id="menu-main" class="space-y-2 w-full">
                 <div class="text-xs font-bold text-slate-400 uppercase tracking-wider pb-1">Категории</div>
                 
@@ -127,7 +115,6 @@
                 </button>
             </div>
 
-            <!-- ПОДМЕНЮ: РЕГИСТРАТУРИ И УСЛУГИ -->
             <div id="menu-services" class="space-y-2 w-full hidden">
                 <div class="flex justify-between items-center pb-1">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Регистратури и услуги</span>
@@ -136,12 +123,12 @@
 
                 <button onclick="locate('reg_os')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">📥 Регистратура Окръжен съд</button>
                 <button onclick="locate('reg_rs')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">📥 Регистратура Районен съд</button>
+                <button onclick="locate('reg_prokuratura')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">📥 Регистратура Прокуратура</button>
                 <button onclick="locate('sudimost')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">📜 Бюро съдимост</button>
                 <button onclick="locate('ispalniteli')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">💼 Съдебно изпълнителна служба</button>
                 <button onclick="locate('prizovkari')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">✉️ Призовкари</button>
             </div>
 
-            <!-- ПОДМЕНЮ: СЪДЕБНИ ЗАЛИ (ЕТАЖ 1) -->
             <div id="menu-halls" class="space-y-2 w-full hidden">
                 <div class="flex justify-between items-center pb-1">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Избор на зала</span>
@@ -154,7 +141,6 @@
                 <button onclick="locate('zala4')" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-emerald-200/60 transition">⚖️ Заседателна зала 4 - РС</button>
             </div>
 
-            <!-- СПЕЦИАЛНО МЕНЮ ПРИ ПРЕСТОЙ В СЕКТОР ОФИСИ -->
             <div id="menu-back-to-main" class="space-y-2 w-full hidden flex-1 flex flex-col justify-center">
                 <p class="text-xs text-slate-400 text-center mb-2">Намирате се в сектор Офиси / Долен коридор</p>
                 <button onclick="exitOfisiSection()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition text-center">
@@ -162,7 +148,6 @@
                 </button>
             </div>
 
-            <!-- НОВО МЕНЮ: СЪДЕБНИ ЗАЛИ (ЕТАЖ 2) -->
             <div id="menu-floor2-halls" class="space-y-2 w-full hidden">
                 <div class="flex justify-between items-center pb-1">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Етаж 2 - Зали</span>
@@ -195,7 +180,7 @@
         let MAP_OFISI = "";
         let MAP_FLOOR2 = "https://raw.githubusercontent.com/darksaint77/Navigator/main/2-zali.jpg";
         let currentMapState = 'zali';
-        let pendingOfficeTarget = ''; // Помни накъде отиваме при прехода
+        let pendingOfficeTarget = '';
 
         let scale = 1;
         let pointX = 0;
@@ -303,13 +288,14 @@
         }
 
         const targets = {
-            // ЕТАЖ 1
+            // ЕТАЖ 1 - ЦЕНТРАЛЕН САЛОН
             'exit': { map: 'zali', x: 94, y: 35, text: "Насочете се към изхода на съдебната палата през пропуска за граждани." },
             'stairs_et2': { map: 'zali', x: 53, y: 57, text: "Насочете се към централното стълбище, за да се качите към втория етаж. Когато стигнете пред стълбите, натиснете бутона по-долу." },
             'prizovkari': { map: 'zali', x: 28, y: 59, text: "Кабинетът на призовкарите се намира на първия етаж." },
             'zala3': { map: 'zali', x: 12, y: 60, text: "Заседателна зала 3 на Районен съд се намира в лявото крило." },
             'reg_os': { map: 'zali', x: 15, y: 29, text: "Регистратурата на Окръжен съд се намира в лявата част на централния салон." },
             'reg_rs': { map: 'zali', x: 24, y: 32, text: "Регистратурата на Районен съд се намира в централния салон." },
+            'reg_prokuratura': { map: 'zali', x: 47, y: 57, text: "Регистратурата на Прокуратурата се намира в централния салон, до стълбището за Етаж 2." },
             'zala2': { map: 'zali', x: 28, y: 13, text: "Заседателна зала 2 на Районен съд се намира в горния ляв сектор." },
             'zala1': { map: 'zali', x: 48, y: 15, text: "Заседателна зала 1 на Районен съд се намира в горния коридор." },
             'zala4': { map: 'zali', x: 70, y: 13, text: "Заседателна зала 4 на Районен съд се намира в горното дясно крило." },
@@ -318,7 +304,7 @@
             'sudimost': { map: 'zali', x: 67, y: 90, next: 'sudimost_room', text: "Продължете по коридора надолу вдясно към прехода за Бюро съдимост. Когато стигнете там, натиснете бутона по-долу." },
             'ispalniteli': { map: 'zali', x: 67, y: 90, next: 'ispalniteli_room', text: "Продължете по коридора надолу вдясно към Съдебно изпълнителна служба. Когато стигнете там, натиснете бутона по-долу." },
             
-            // ОФИСИ В КОРИДОРА
+            // ОФИСИ В КОРЕДОРА
             'sudimost_room': { map: 'ofisi', x: 37, y: 72, text: "Вие сте в секцията с офиси. Бюро съдимост е Стая 105, намираща се в долния коридор." },
             'ispalniteli_room': { map: 'ofisi', x: 37, y: 34, text: "Вие сте в секцията с офиси. Съдебно изпълнителна служба е Стая 108, намираща се в горния коридор." },
             
