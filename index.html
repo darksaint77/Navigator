@@ -4,170 +4,166 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Навигатор Окръжен съд - Добрич</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        
+        body { background-color: #f1f5f9; color: #1e293b; display: flex; flex-direction: column; min-height: 100vh; align-items: center; padding: 20px 10px; }
+        
+        .app-container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
+        
+        header { background: #1e293b; color: white; text-align: center; padding: 16px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        header h1 { font-size: 16px; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; }
+        
+        #section-label { display: inline-block; margin-top: 8px; background: #2563eb; color: white; font-size: 11px; font-weight: bold; padding: 3px 14px; border-radius: 9999px; text-transform: uppercase; }
+        
+        .card { background: white; padding: 16px; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; }
+        
+        #map-viewport { position: relative; width: 100%; background: #f8fafc; border-radius: 14px; border: 1px solid #e2e8f0; overflow: hidden; cursor: grab; display: flex; align-items: center; justify-content: center; }
+        #map-viewport:active { cursor: grabbing; }
+        
+        #zoom-container { transform-origin: center center; touch-action: none; width: 100%; display: flex; align-items: center; justify-content: center; }
+        .map-wrapper-inner { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; }
+        
+        #main-map { width: 100%; height: auto; max-height: 380px; object-fit: contain; display: block; mix-blend-mode: multiply; }
+        
+        .spotlight-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: multiply; z-index: 5; }
+        
+        #map-marker { position: absolute; width: 22px; height: 22px; background: #ef4444; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(239,68,68,0.8); margin-top: -11px; margin-left: -11px; z-index: 10; display: none; }
+        #map-marker::after { content: ''; display: block; width: 6px; height: 6px; background: white; border-radius: 50%; margin: 5px auto 0 auto; }
+        
         @keyframes pulse-marker {
             0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.4); opacity: 0.6; }
+            50% { transform: scale(1.25); opacity: 0.8; }
             100% { transform: scale(1); opacity: 1; }
         }
-        .pulsing-effect { animation: pulse-marker 1.5s infinite ease-in-out; }
+        .pulsing { animation: pulse-marker 1.4s infinite ease-in-out; }
         
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* СТИЛ 3 + УАУ ЕФЕКТ */
-        .premium-map-filter {
-            filter: contrast(0.85) brightness(1.05) sepia(0.08) hue-rotate(190deg) saturate(0.9);
-            mix-blend-mode: multiply;
-        }
-
-        .spotlight-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            mix-blend-mode: multiply;
-            transition: background 0.4s ease;
-            z-index: 5;
-        }
-
-        /* Центрирано разположение и симетричен мащаб */
-        #zoom-container {
-            transform-origin: center center;
-            will-change: transform;
-            touch-action: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .controls-row { display: flex; justify-content: space-between; align-items: center; }
+        .hint-text { font-size: 11px; color: #94a3b8; }
+        .btn-reset { background: #f1f5f9; color: #334155; font-size: 11px; font-weight: 600; padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; }
+        
+        .instruction-box { background: #f8fafc; border-left: 4px solid #2563eb; padding: 12px; border-radius: 12px; font-size: 12px; line-height: 1.5; color: #334155; display: flex; flex-direction: column; gap: 8px; }
+        
+        .nav-action-btn { display: none; width: 100%; text-align: center; font-weight: bold; padding: 10px; border-radius: 10px; border: none; color: white; cursor: pointer; font-size: 12px; }
+        #transition-btn { background: #059669; }
+        #elevator-btn { background: #4f46e5; }
+        #stairs-btn { background: #2563eb; }
+        
+        .menu-wrapper { background: white; padding: 16px; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .menu-title { font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .menu-section { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .hidden { display: none !important; }
+        
+        .btn-menu { width: 100%; color: white; font-size: 13px; font-weight: 600; padding: 14px 16px; border-radius: 12px; border: none; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-main-1 { background: #334155; }
+        .btn-main-2 { background: #047857; }
+        .btn-main-3 { background: #6d28d9; }
+        .btn-main-4 { background: #b45309; } /* Кафяво/Кехлибарено за новата категория */
+        
+        .btn-item { width: 100%; background: #f8fafc; color: #334155; font-size: 13px; font-weight: 500; padding: 12px 16px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: left; cursor: pointer; }
+        .btn-item:active { background: #f1f5f9; }
+        
+        .btn-back { background: #f59e0b; color: white; font-size: 11px; font-weight: bold; padding: 4px 10px; border: none; border-radius: 6px; cursor: pointer; }
+        .btn-back-danger { background: #e11d48; color: white; font-size: 12px; font-weight: bold; width: 100%; padding: 10px; border: none; border-radius: 10px; text-align: center; cursor: pointer; margin-top: 6px; }
+        
+        footer { text-align: center; padding: 8px; font-size: 10px; color: #94a3b8; font-weight: bold; }
     </style>
 </head>
-<body class="bg-gray-50 font-sans min-h-screen flex flex-col overflow-x-hidden select-none">
+<body>
 
-    <header class="bg-slate-800 text-white text-center py-3 shadow-md z-20">
-        <h1 class="text-xl font-bold tracking-wide">СЪДЕБЕН НАВИГАТОР - ДОБРИЧ</h1>
-        <div id="section-label" class="inline-block mt-1 bg-blue-600/80 text-[11px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase transition-colors">
-            Етаж 1 - Зали
-        </div>
-    </header>
+    <div class="app-container">
+        <header>
+            <h1>Съдебен Навигатор - Добрич</h1>
+            <div id="section-label">Етаж 1 - Зали</div>
+        </header>
 
-    <main class="flex-1 max-w-md mx-auto w-full p-4 flex flex-col space-y-3">
-        
-        <div class="relative bg-white p-3 rounded-2xl shadow-xl border border-gray-100 flex flex-col">
-            
-            <div id="map-viewport" class="relative w-full border border-gray-100 rounded-xl bg-slate-100 overflow-hidden shadow-inner cursor-grab active:cursor-grabbing flex items-center justify-center" style="height: 290px;">
-                <div id="zoom-container" class="absolute w-full h-full">
-                    <div class="relative inline-block">
-                        <img id="main-map" src="https://raw.githubusercontent.com/darksaint77/Navigator/main/1-zali.jpg" class="max-w-full max-h-full h-auto block select-none premium-map-filter" alt="Карта" draggable="false">
-                        
+        <div class="card">
+            <div id="map-viewport">
+                <div id="zoom-container">
+                    <div class="map-wrapper-inner">
+                        <img id="main-map" src="https://raw.githubusercontent.com/darksaint77/Navigator/main/1-zali.jpg" alt="Карта" draggable="false">
                         <div id="map-spotlight" class="spotlight-overlay"></div>
-
-                        <div id="map-marker" class="absolute w-7 h-7 bg-red-500 border-4 border-white rounded-full shadow-2xl pulsing-effect hidden" style="top: 0%; left: 0%; margin-top: -14px; margin-left: -14px; z-index: 10;">
-                            <div class="w-1.5 h-1.5 bg-white rounded-full m-1"></div>
-                        </div>
+                        <div id="map-marker" class="pulsing"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-between items-center mt-2 px-1">
-                <span class="text-[10px] text-slate-400">💡 Използвайте два пръста за увеличение</span>
-                <button onclick="resetZoom()" class="bg-slate-100 active:bg-slate-200 text-slate-700 text-xs font-medium px-3 py-1.5 rounded-lg shadow-sm border border-gray-200 flex items-center gap-1">
-                    🔄 Върни мащаба
-                </button>
+            <div class="controls-row">
+                <span class="hint-text">💡 Стиснете или скролнете за увеличение</span>
+                <button onclick="resetZoom()" class="btn-reset">🔄 Върни мащаба</button>
             </div>
 
-            <div class="mt-2 bg-slate-50 border-l-4 border-blue-600 p-3 rounded-xl text-xs text-slate-700 flex flex-col space-y-2 shadow-sm">
-                <div id="instruction-text" class="font-medium leading-relaxed">📍 Изберете дестинация от менюто по-долу:</div>
-                
-                <button id="transition-btn" onclick="enterOfisiSection()" class="hidden w-full bg-emerald-600 hover:bg-emerald-700 text-white text-center font-bold py-2.5 px-3 rounded-xl shadow-md transition-all transform active:scale-95">
-                    🔎 Влез в коридора (Виж офисите)
-                </button>
-                
-                <button id="stairs-btn" onclick="enterFloor2Section()" class="hidden w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center font-bold py-2.5 px-3 rounded-xl shadow-md transition-all transform active:scale-95">
-                    🏃‍♂️ Качи се на Етаж 2 (Заседателни зали)
-                </button>
+            <div class="instruction-box">
+                <div id="instruction-text">📍 Изберете дестинация от менюто по-долу:</div>
+                <button id="transition-btn" onclick="enterOfisiSection()" class="nav-action-btn">🔎 Влез в коридора (Виж офисите)</button>
+                <button id="elevator-btn" onclick="enterFloor4Section()" class="nav-action-btn">🛗 Качи се с асансьора (Етаж 4)</button>
+                <button id="stairs-btn" onclick="enterFloor2Section()" class="nav-action-btn">🏃‍♂️ Качи се на Етаж 2 (Заседателни зали)</button>
             </div>
         </div>
 
-        <div class="bg-white p-4 rounded-2xl shadow-xl border border-gray-100 min-h-[210px] flex flex-col justify-start">
-            
-            <div id="menu-main" class="space-y-2 w-full">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider pb-1">Категории</div>
-                
-                <button onclick="switchMenu('menu-services')" class="w-full bg-slate-700 hover:bg-slate-800 text-white text-sm font-medium py-3 px-4 rounded-xl shadow-sm transition flex justify-between items-center">
-                    <span>🏢 Регистратури и услуги</span>
-                    <span class="text-slate-400 text-xs">➔</span>
-                </button>
-
-                <button onclick="switchMenu('menu-halls')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium py-3 px-4 rounded-xl shadow-sm transition flex justify-between items-center">
-                    <span>⚖️ Съдебни зали (1 етаж)</span>
-                    <span class="text-emerald-300 text-xs">➔</span>
-                </button>
-
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider pt-2">Бързи връзки</div>
-
-                <button onclick="locate('stairs_et2')" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 px-4 rounded-xl shadow-sm transition text-left">
-                    🏛️ Към етаж 2 съдебни зали
-                </button>
-
-                <button onclick="locate('exit')" class="w-full bg-stone-600 hover:bg-stone-700 text-white text-sm font-medium py-2.5 px-4 rounded-xl shadow-sm transition text-left">
-                    🚪 Изход съдебна палата
-                </button>
+        <div class="menu-wrapper">
+            <div id="menu-main" class="menu-section">
+                <div class="menu-title">Категории</div>
+                <button onclick="switchMenu('menu-services')" class="btn-menu btn-main-1"><span>🏢 Регистратури и услуги (Етаж 1)</span><span>➔</span></button>
+                <button onclick="switchMenu('menu-court-rooms')" class="btn-menu btn-main-2"><span>⚖️ Съдебни зали</span><span>➔</span></button>
+                <button onclick="switchMenu('menu-floor4-admin')" class="btn-menu btn-main-3"><span>📂 Деловодства и Администрация (Етаж 4)</span><span>➔</span></button>
+                <button onclick="switchMenu('menu-finance')" class="btn-menu btn-main-4"><span>💰 Счетоводства</span><span>➔</span></button>
             </div>
 
-            <div id="menu-services" class="space-y-2 w-full hidden">
-                <div class="flex justify-between items-center pb-1">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Регистратури и услуги</span>
-                    <button onclick="switchMenu('menu-main')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-1 rounded-lg shadow transition">⬅ Назад</button>
-                </div>
-
-                <button onclick="locate('reg_os')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">📥 Регистратура Окръжен съд</button>
-                <button onclick="locate('reg_rs')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">📥 Регистратура Районен съд</button>
-                <button onclick="locate('reg_prokuratura')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">📥 Регистратура Прокуратура</button>
-                <button onclick="locate('sudimost')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">📜 Бюро съдимост</button>
-                <button onclick="locate('ispalniteli')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">💼 Съдебно изпълнителна служба</button>
-                <button onclick="locate('prizovkari')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">✉️ Призовкари</button>
+            <div id="menu-services" class="menu-section hidden">
+                <div class="menu-title"><span>Регистратури и услуги</span><button onclick="switchMenu('menu-main')" class="btn-back">⬅ Назад</button></div>
+                <button onclick="locate('reg_os')" class="btn-item">📥 Регистратура Окръжен съд</button>
+                <button onclick="locate('reg_rs')" class="btn-item">📥 Регистратура Районен съд</button>
+                <button onclick="locate('reg_prokuratura')" class="btn-item">📥 Регистратура Прокуратура</button>
+                <button onclick="locate('sudimost')" class="btn-item">📜 Бюро съдимост</button>
+                <button onclick="locate('ispalniteli')" class="btn-item">💼 Съдебно изпълнителна служба</button>
+                <button onclick="locate('prizovkari')" class="btn-item">✉️ Призовкари</button>
             </div>
 
-            <div id="menu-halls" class="space-y-2 w-full hidden">
-                <div class="flex justify-between items-center pb-1">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Избор на зала</span>
-                    <button onclick="switchMenu('menu-main')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-1 rounded-lg shadow transition">⬅ Назад</button>
-                </div>
-
-                <button onclick="locate('zala1')" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-emerald-200/60 transition">⚖️ Заседателна зала 1 - РС</button>
-                <button onclick="locate('zala2')" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-emerald-200/60 transition">⚖️ Заседателна зала 2 - РС</button>
-                <button onclick="locate('zala3')" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-emerald-200/60 transition">⚖️ Заседателна зала 3 - РС</button>
-                <button onclick="locate('zala4')" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-emerald-200/60 transition">⚖️ Заседателна зала 4 - РС</button>
+            <div id="menu-court-rooms" class="menu-section hidden">
+                <div class="menu-title"><span>Съдебни зали</span><button onclick="switchMenu('menu-main')" class="btn-back">⬅ Назад</button></div>
+                <button onclick="switchMenu('menu-halls-e1')" class="btn-item" style="background:#f0fdf4; border-color:#bbf7d0; color:#166534;">Етаж 1 - Зали на Районен съд</button>
+                <button onclick="locate('stairs_et2')" class="btn-item" style="background:#eef2ff; border-color:#e0e7ff; color:#3730a3;">Етаж 2 - Зали на Окръжен съд</button>
             </div>
 
-            <div id="menu-back-to-main" class="space-y-2 w-full hidden flex-1 flex flex-col justify-center">
-                <p class="text-xs text-slate-400 text-center mb-2">Намирате се в сектор Офиси / Долен коридор</p>
-                <button onclick="exitOfisiSection()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition text-center">
-                    ⬅ Върни се в централния салон
-                </button>
+            <div id="menu-halls-e1" class="menu-section hidden">
+                <div class="menu-title"><span>Зали - Етаж 1</span><button onclick="switchMenu('menu-court-rooms')" class="btn-back">⬅ Назад</button></div>
+                <button onclick="locate('zala1')" class="btn-item">⚖️ Заседателна зала 1 - РС</button>
+                <button onclick="locate('zala2')" class="btn-item">⚖️ Заседателна зала 2 - РС</button>
+                <button onclick="locate('zala3')" class="btn-item">⚖️ Заседателна зала 3 - РС</button>
+                <button onclick="locate('zala4')" class="btn-item">⚖️ Заседателна зала 4 - РС</button>
             </div>
 
-            <div id="menu-floor2-halls" class="space-y-2 w-full hidden">
-                <div class="flex justify-between items-center pb-1">
-                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Етаж 2 - Зали</span>
-                    <button onclick="exitFloor2Section()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-1 rounded-lg shadow transition">⬅ Слез на Етаж 1</button>
-                </div>
-
-                <button onclick="locate('zala5')" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-indigo-200/60 transition">⚖️ Заседателна зала 5 - ОС</button>
-                <button onclick="locate('zala6')" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-indigo-200/60 transition">⚖️ Заседателна зала 6 - ОС</button>
-                <button onclick="locate('zala7')" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-indigo-200/60 transition">⚖️ Заседателна зала 7 - РС</button>
-                <button onclick="locate('zala8')" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-indigo-200/60 transition">⚖️ Заседателна зала 8 - ОС</button>
-                <button onclick="locate('mediation')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">🤝 Зала медиация</button>
+            <div id="menu-floor4-admin" class="menu-section hidden">
+                <div class="menu-title"><span>Етаж 4 - Окръжен съд</span><button onclick="switchMenu('menu-main')" class="btn-back">⬅ Назад</button></div>
+                <button onclick="locate('delovodstvo_gt_os')" class="btn-item">📂 Гражданско и Търговско деловодство</button>
+                <button onclick="locate('delovodstvo_nak_os')" class="btn-item">📂 Наказателно деловодство</button>
             </div>
 
+            <div id="menu-finance" class="menu-section hidden">
+                <div class="menu-title"><span>Счетоводства</span><button onclick="switchMenu('menu-main')" class="btn-back">⬅ Назад</button></div>
+                <button onclick="locate('schetovodstvo_rs')" class="btn-item">💰 Счетоводство Районен съд (Етаж 1)</button>
+                <button onclick="locate('schetovodstvo_os')" class="btn-item">💰 Счетоводство Окръжен съд (Етаж 4)</button>
+            </div>
+
+            <div id="menu-back-to-main" class="menu-section hidden" style="text-align:center;">
+                <p style="font-size:11px; color:#94a3b8; margin-bottom:4px;">Намирате се в сектор Офиси / Долен коридор</p>
+                <button onclick="exitToMainSection()" class="btn-back-danger">⬅ Върни се в централния салон</button>
+            </div>
+
+            <div id="menu-floor2-halls" class="menu-section hidden">
+                <div class="menu-title"><span>Етаж 2 - Зали</span><button onclick="exitToMainSection()" class="btn-back" style="background:#e11d48;">⬅ Слез на Етаж 1</button></div>
+                <button onclick="locate('zala5')" class="btn-item">⚖️ Заседателна зала 5 - ОС</button>
+                <button onclick="locate('zala6')" class="btn-item">⚖️ Заседателна зала 6 - ОС</button>
+                <button onclick="locate('zala7')" class="btn-item">⚖️ Заседателна зала 7 - РС</button>
+                <button onclick="locate('zala8')" class="btn-item">⚖️ Заседателна зала 8 - ОС</button>
+                <button onclick="locate('mediation')" class="btn-item">🤝 Зала медиация</button>
+            </div>
         </div>
 
-    </main>
-
-    <footer class="bg-slate-200 text-center py-2.5 text-xs text-slate-400 border-t border-slate-300 z-20 font-medium tracking-wide">
-        ОКРЪЖЕН СЪД ДОБРИЧ © 2026
-    </footer>
+        <footer>ОКРЪЖЕН СЪД ДОБРИЧ © 2026</footer>
+    </div>
 
     <script>
         const mapImg = document.getElementById('main-map');
@@ -179,243 +175,210 @@
         let MAP_ZALI = "";
         let MAP_OFISI = "";
         let MAP_FLOOR2 = "https://raw.githubusercontent.com/darksaint77/Navigator/main/2-zali.jpg";
+        let MAP_FLOOR4 = "https://raw.githubusercontent.com/darksaint77/Navigator/main/4-ofisi.jpg";
+        
         let currentMapState = 'zali';
-        let pendingOfficeTarget = '';
+        let pendingTarget = '';
+        let savedFinalTarget = '';
 
-        let scale = 1;
-        let pointX = 0;
-        let pointY = 0;
-        let startX = 0;
-        let startY = 0;
-        let isPanning = false;
-        let touchStartDist = 0;
+        let scale = 1; let pointX = 0; let pointY = 0; let startX = 0; let startY = 0;
+        let isPanning = false; let touchStartDist = 0;
 
         window.addEventListener('load', () => {
-            const baseUrl = mapImg.src.substring(0, mapImg.src.lastIndexOf('/') + 1);
             MAP_ZALI = mapImg.src;
+            const baseUrl = MAP_ZALI.substring(0, MAP_ZALI.lastIndexOf('/') + 1);
             MAP_OFISI = baseUrl + "1-ofisi.jpg";
 
             new Image().src = MAP_OFISI;
             new Image().src = MAP_FLOOR2;
-            
-            updateTransform();
+            new Image().src = MAP_FLOOR4;
         });
 
         function updateTransform() {
-            if (scale < 1) scale = 1;
-            if (scale > 4) scale = 4;
-            
-            if (scale === 1) {
-                pointX = 0;
-                pointY = 0;
-            } else {
+            if (scale < 1) scale = 1; if (scale > 4) scale = 4;
+            if (scale === 1) { pointX = 0; pointY = 0; }
+            else {
                 const boundX = (viewport.offsetWidth * scale - viewport.offsetWidth) / 2;
                 const boundY = (viewport.offsetHeight * scale - viewport.offsetHeight) / 2;
-
-                if (pointX > boundX) pointX = boundX;
-                if (pointX < -boundX) pointX = -boundX;
-                if (pointY > boundY) pointY = boundY;
-                if (pointY < -boundY) pointY = -boundY;
+                if (pointX > boundX) pointX = boundX; if (pointX < -boundX) pointX = -boundX;
+                if (pointY > boundY) pointY = boundY; if (pointY < -boundY) pointY = -boundY;
             }
-
             container.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
         }
 
-        // СЪБИТИЯ ЗА МИШКА
-        viewport.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            startX = e.clientX - pointX;
-            startY = e.clientY - pointY;
-            isPanning = true;
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (!isPanning) return;
-            pointX = e.clientX - startX;
-            pointY = e.clientY - startY;
-            updateTransform();
-        });
-
+        viewport.addEventListener('mousedown', (e) => { e.preventDefault(); startX = e.clientX - pointX; startY = e.clientY - pointY; isPanning = true; });
+        window.addEventListener('mousemove', (e) => { if (!isPanning) return; pointX = e.clientX - startX; pointY = e.clientY - startY; updateTransform(); });
         window.addEventListener('mouseup', () => { isPanning = false; });
-
-        viewport.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            let zoomFactor = 1.1;
-            if (e.deltaY > 0) zoomFactor = 1 / zoomFactor;
-            scale *= zoomFactor;
-            updateTransform();
-        });
-
-        // СЪБИТИЯ ЗА ТЪЧ
+        viewport.addEventListener('wheel', (e) => { e.preventDefault(); let z = 1.1; if (e.deltaY > 0) z = 1/z; scale *= z; updateTransform(); });
+        
         viewport.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1) {
-                isPanning = true;
-                startX = e.touches[0].clientX - pointX;
-                startY = e.touches[0].clientY - pointY;
-            } else if (e.touches.length === 2) {
-                isPanning = false;
-                touchStartDist = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-            }
+            if (e.touches.length === 1) { isPanning = true; startX = e.touches[0].clientX - pointX; startY = e.touches[0].clientY - startY; }
+            else if (e.touches.length === 2) { isPanning = false; touchStartDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); }
         });
-
         viewport.addEventListener('touchmove', (e) => {
-            if (isPanning && e.touches.length === 1) {
-                pointX = e.touches[0].clientX - startX;
-                pointY = e.touches[0].clientY - startY;
-                updateTransform();
-            } else if (e.touches.length === 2) {
-                const dist = Math.hypot(
-                    e.touches[0].clientX - e.touches[1].clientX,
-                    e.touches[0].clientY - e.touches[1].clientY
-                );
-                const factor = dist / touchStartDist;
-                touchStartDist = dist;
-                scale *= factor;
-                updateTransform();
+            if (isPanning && e.touches.length === 1) { pointX = e.touches[0].clientX - startX; pointY = e.touches[0].clientY - startY; updateTransform(); }
+            else if (e.touches.length === 2) {
+                const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+                scale *= (d / touchStartDist); touchStartDist = d; updateTransform();
             }
         });
-
         viewport.addEventListener('touchend', () => { isPanning = false; touchStartDist = 0; });
-
-        function resetZoom() {
-            scale = 1;
-            pointX = 0;
-            pointY = 0;
-            updateTransform();
-        }
+        function resetZoom() { scale = 1; pointX = 0; pointY = 0; updateTransform(); }
 
         const targets = {
-            // ЕТАЖ 1 - ЦЕНТРАЛЕН САЛОН
-            'exit': { map: 'zali', x: 94, y: 35, text: "Насочете се към изхода на съдебната палата през пропуска за граждани." },
-            'stairs_et2': { map: 'zali', x: 53, y: 57, text: "Насочете се към централното стълбище, за да се качите към втория етаж. Когато стигнете пред стълбите, натиснете бутона по-долу." },
-            'prizovkari': { map: 'zali', x: 28, y: 59, text: "Кабинетът на призовкарите се намира на първия етаж." },
-            'zala3': { map: 'zali', x: 12, y: 60, text: "Заседателна зала 3 на Районен съд се намира в лявото крило." },
-            'reg_os': { map: 'zali', x: 15, y: 29, text: "Регистратурата на Окръжен съд се намира в лявата част на централния салон." },
-            'reg_rs': { map: 'zali', x: 24, y: 32, text: "Регистратурата на Районен съд се намира в централния салон." },
-            'reg_prokuratura': { map: 'zali', x: 47, y: 57, text: "Регистратурата на Прокуратурата се намира в централния салон, до стълбището за Етаж 2." },
-            'zala2': { map: 'zali', x: 28, y: 13, text: "Заседателна зала 2 на Районен съд се намира в горния ляв сектор." },
-            'zala1': { map: 'zali', x: 48, y: 15, text: "Заседателна зала 1 на Районен съд се намира в горния коридор." },
-            'zala4': { map: 'zali', x: 70, y: 13, text: "Заседателна зала 4 на Районен съд се намира в горното дясно крило." },
+            'reg_os': { map: 'zali', x: 14.5, y: 31.0, text: "Регистратурата на Окръжен съд се намира в лявата част на centralния салон." },
+            'reg_rs': { map: 'zali', x: 25.5, y: 31.0, text: "Регистратурата на Районен съд се намира в централния салон." },
+            'zala2': { map: 'zali', x: 30.0, y: 14.0, text: "Заседателна зала 2 на Районен съд се намира в горния ляв сектор." },
+            'zala1': { map: 'zali', x: 49.5, y: 14.0, text: "Заседателна зала 1 на Районен съд се намира в горния коридор." },
+            'zala4': { map: 'zali', x: 69.5, y: 14.0, text: "Заседателна зала 4 на Районен съд се намира в горното дясно крило." },
+            'zala3': { map: 'zali', x: 12.0, y: 60.5, text: "Заседателна зала 3 на Районен съд се намира в долното ляво крило." },
+            'prizovkari': { map: 'zali', x: 26.5, y: 60.5, text: "Кабинетът на призовкарите се намира на първия етаж." },
+            'reg_prokuratura': { map: 'zali', x: 47.0, y: 56.0, text: "Регистратурата на Прокуратурата се намира в централния салон, до прехода за съдебните зали на втори етаж." },
             
-            // ПРЕХОДИ КЪМ КОРЕДОРА НА ОФИСИТЕ
-            'sudimost': { map: 'zali', x: 67, y: 90, next: 'sudimost_room', text: "Продължете по коридора надолу вдясно към прехода за Бюро съдимост. Когато стигнете там, натиснете бутона по-долу." },
-            'ispalniteli': { map: 'zali', x: 67, y: 90, next: 'ispalniteli_room', text: "Продължете по коридора надолу вдясно към Съдебно изпълнителна служба. Когато стигнете там, натиснете бутона по-долу." },
+            'sudimost': { map: 'zali', x: 66.0, y: 92.0, next: 'sudimost_room', text: "Продължете по коридора надолу вдясно към сектора с офисите. Когато преминете там, натиснете бутона отдолу." },
+            'ispalniteli': { map: 'zali', x: 66.0, y: 92.0, next: 'ispalniteli_room', text: "Продължете по коридора надолу вдясно към сектора с офисите. Когато преминете там, натиснете бутона отдолу." },
+            'stairs_et2': { map: 'zali', x: 53.0, y: 56.0, next: 'floor2_welcome', text: "Насочете се към стълбището в централния салон (обозначено като 'Към етаж 2 съдебни зали') и се качете горе." },
             
-            // ОФИСИ В КОРЕДОРА
-            'sudimost_room': { map: 'ofisi', x: 37, y: 72, text: "Вие сте в секцията с офиси. Бюро съдимост е Стая 105, намираща се в долния коридор." },
-            'ispalniteli_room': { map: 'ofisi', x: 37, y: 34, text: "Вие сте в секцията с офиси. Съдебно изпълнителна служба е Стая 108, намираща се в горния коридор." },
+            /* СЧЕТОВОДСТВО РАЙОНЕН СЪД (Започва от централна зала и праща в Офиси) */
+            'schetovodstvo_rs': { map: 'zali', x: 66.0, y: 92.0, next: 'schetovodstvo_rs_room', text: "Продължете по коридора надолу вдясно към сектора с офисите. Когато преминете там, натиснете бутона отдолу." },
+            'schetovodstvo_rs_room': { map: 'ofisi', x: 72.5, y: 72.0, text: "Счетоводството на Районен съд се намира в Стая 101 в десния край на долния коридор." },
             
-            // ЕТАЖ 2
-            'zala8': { map: 'floor2', x: 84, y: 41, text: "Заседателна зала 8 на Окръжен съд се намира в десния край на коридора на Етаж 2." },
-            'zala5': { map: 'floor2', x: 69, y: 86, text: "Заседателна зала 5 на Окръжен съд се намира на Етаж 2, вдясно по коридора." },
-            'zala6': { map: 'floor2', x: 50, y: 86, text: "Заседателна зала 6 на Окръжен съд се намира на Етаж 2, точно срещу стълбището." },
-            'zala7': { map: 'floor2', x: 12, y: 85, text: "Заседателна зала 7 на Районен съд се намира в левия край на коридора на Етаж 2." },
-            'mediation': { map: 'floor2', x: 24, y: 86, text: "Залата за медиация се намира на Етаж 2, в лявото крило до Зала 7." }
+            'sudimost_room': { map: 'ofisi', x: 36.5, y: 72.0, text: "Вие сте в секцията с офиси. Бюро съдимост е Стая 105, намираща се в долния коридор." },
+            'ispalniteli_room': { map: 'ofisi', x: 34.5, y: 34.5, text: "Вие сте в секцията с офиси. Съдебно изпълнителна служба е Стая 108, намираща се в горния коридор." },
+            'elevator_et1_block': { map: 'ofisi', x: 92.0, y: 78.5, type: 'elevator', text: "Придвижете се до дъното на коридора. Намирате се пред асансьорите. Натиснете бутона отдолу, за да се качите на Етаж 4." },
+
+            'delovodstvo_gt_os': { map: 'zali', x: 66.0, y: 92.0, next: 'elevator_et1_block', final: 'delo_gt_4', text: "За Гражданско деловодство на ОС първо преминете през коридора вдясно към сектора с офисите и асансьорите." },
+            'delovodstvo_nak_os': { map: 'zali', x: 66.0, y: 92.0, next: 'elevator_et1_block', final: 'delo_nak_4', text: "За Наказателно деловодство на ОС първо преминете през коридора вдясно към сектора с офисите и асансьорите." },
+            
+            /* СЧЕТОВОДСТВО ОКРЪЖЕН СЪД (Праща през Офиси -> Асансьор -> Етаж 4) */
+            'schetovodstvo_os': { map: 'zali', x: 66.0, y: 92.0, next: 'elevator_et1_block', final: 'schet_os_4', text: "За Счетоводство на Окръжен съд първо преминете през коридора вдясно към сектора с офисите и асансьорите." },
+
+            'elevator_4': { map: 'floor4', x: 13.0, y: 29.5, text: "Вие сте на Етаж 4. Излязохте от асансьора." },
+            'delo_gt_4': { map: 'floor4', x: 86.0, y: 23.0, text: "Гражданско и Търговско деловодство на Окръжен съд се намира в Стая 412 в края на десния коридор." },
+            'schet_os_4': { map: 'floor4', x: 67.5, y: 23.0, text: "Счетоводството на Окръжен съд се намира в Стая 411 в десния коридор." },
+            'delo_nak_4': { map: 'floor4', x: 66.5, y: 78.5, text: "Наказателното деловодство на Окръжен съд се намира в Стая 401 в долния десен коридор." },
+            
+            'zala7': { map: 'floor2', x: 11.0, y: 85.5, text: "Заседателна зала 7 на Районен съд се намира в долния ляв ъгъл на Етаж 2." },
+            'mediation': { map: 'floor2', x: 23.5, y: 85.5, text: "Залата за медиация се намира на Етаж 2, веднага до Зала 7." },
+            'zala6': { map: 'floor2', x: 49.0, y: 85.5, text: "Заседателна зала 6 на Окръжен съд се намира централно в долния коридор на Етаж 2." },
+            'zala5': { map: 'floor2', x: 69.5, y: 85.5, text: "Заседателна зала 5 на Окръжен съд се намира в долния десен сектор на Етаж 2." },
+            'zala8': { map: 'floor2', x: 86.5, y: 41.0, text: "Заседателна зала 8 на Окръжен съд се намира в горния десен коридор на Етаж 2." }
         };
 
         function locate(key) {
             const data = targets[key];
             if (!data) return;
 
-            document.getElementById('transition-btn').classList.add('hidden');
-            document.getElementById('stairs-btn').classList.add('hidden');
+            document.getElementById('transition-btn').style.display = 'none';
+            document.getElementById('stairs-btn').style.display = 'none';
+            document.getElementById('elevator-btn').style.display = 'none';
 
-            if (data.map === 'zali' && currentMapState !== 'zali') {
-                switchToMap('zali');
-            } else if (data.map === 'floor2' && currentMapState !== 'floor2') {
-                switchToMap('floor2');
+            if (data.map !== currentMapState) {
+                switchToMap(data.map);
             }
 
             marker.style.left = data.x + "%";
             marker.style.top = data.y + "%";
-            marker.classList.remove('hidden');
+            marker.style.display = 'block';
 
-            spotlight.style.background = `radial-gradient(circle 50px at ${data.x}% ${data.y}%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
-
+            spotlight.style.background = `radial-gradient(circle 40px at ${data.x}% ${data.y}%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
             document.getElementById('instruction-text').innerHTML = `<strong>🚶‍♂️ Напътствие:</strong> ${data.text}`;
 
-            if (key === 'sudimost' || key === 'ispalniteli') {
-                pendingOfficeTarget = data.next;
-                document.getElementById('transition-btn').classList.remove('hidden');
+            if (data.final) savedFinalTarget = data.final;
+
+            if (key === 'sudimost' || key === 'ispalniteli' || key === 'schetovodstvo_rs' || data.final) {
+                pendingTarget = data.next;
+                document.getElementById('transition-btn').style.display = 'block';
             } else if (key === 'stairs_et2') {
-                document.getElementById('stairs-btn').classList.remove('hidden');
+                pendingTarget = 'floor2_welcome';
+                document.getElementById('stairs-btn').style.display = 'block';
+            } else if (data.type === 'elevator' || key === 'elevator_et1_block') {
+                pendingTarget = savedFinalTarget || 'elevator_4';
+                document.getElementById('elevator-btn').style.display = 'block';
             }
         }
 
         function enterOfisiSection() {
             switchToMap('ofisi');
             switchMenu('menu-back-to-main');
-            if (pendingOfficeTarget) {
-                locate(pendingOfficeTarget);
-                pendingOfficeTarget = '';
+            if (pendingTarget) {
+                let nextKey = pendingTarget;
+                pendingTarget = '';
+                locate(nextKey);
             } else {
                 locate('sudimost_room');
             }
         }
 
-        function exitOfisiSection() {
-            switchToMap('zali');
-            switchMenu('menu-main');
-            clearActiveState();
+        function enterFloor4Section() {
+            switchToMap('floor4');
+            switchMenu('menu-floor4-admin');
+            if (savedFinalTarget) {
+                let final = savedFinalTarget;
+                savedFinalTarget = '';
+                locate(final);
+            } else {
+                locate('elevator_4');
+            }
         }
 
         function enterFloor2Section() {
             switchToMap('floor2');
             switchMenu('menu-floor2-halls');
-            marker.style.left = "44%";
-            marker.style.top = "45%";
-            marker.classList.remove('hidden');
-            spotlight.style.background = `radial-gradient(circle 50px at 44% 45%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
-            document.getElementById('instruction-text').innerHTML = "<strong>🏛️ Вие сте на Етаж 2:</strong> Изберете съдебна зала от менюто.";
+            savedFinalTarget = '';
+            marker.style.left = "44%"; marker.style.top = "44%";
+            marker.style.display = 'block';
+            spotlight.style.background = `radial-gradient(circle 40px at 44% 44%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
+            document.getElementById('instruction-text').innerHTML = "<strong>🏛️ Вие сте на Етаж 2:</strong> Изберете съдебна зала от списъка в менюто.";
         }
 
-        function exitFloor2Section() {
+        function exitToMainSection() {
             switchToMap('zali');
             switchMenu('menu-main');
+            savedFinalTarget = '';
             clearActiveState();
         }
 
         function clearActiveState() {
-            marker.classList.add('hidden');
+            marker.style.display = 'none';
             spotlight.style.background = 'none';
-            document.getElementById('instruction-text').innerText = "📍 Изберете категория от менюто по-долу:";
-            document.getElementById('transition-btn').classList.add('hidden');
-            document.getElementById('stairs-btn').classList.add('hidden');
+            document.getElementById('instruction-text').innerText = "📍 Изберете дестинация от менюто по-долу:";
+            document.getElementById('transition-btn').style.display = 'none';
+            document.getElementById('stairs-btn').style.display = 'none';
+            document.getElementById('elevator-btn').style.display = 'none';
         }
 
         function switchToMap(mapName) {
             const label = document.getElementById('section-label');
-            mapImg.className = "max-w-full max-h-full h-auto block select-none premium-map-filter";
+            currentMapState = mapName;
             
             if (mapName === 'ofisi') {
                 mapImg.src = MAP_OFISI;
                 label.innerText = "Етаж 1 - Офиси";
-                label.className = "inline-block mt-1 bg-emerald-600/80 text-[11px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase transition-colors";
-                currentMapState = 'ofisi';
+                label.style.background = "#059669";
+            } else if (mapName === 'floor4') {
+                mapImg.src = MAP_FLOOR4;
+                label.innerText = "Етаж 4 - Администрация";
+                label.style.background = "#7c3aed";
             } else if (mapName === 'floor2') {
                 mapImg.src = MAP_FLOOR2;
                 label.innerText = "Етаж 2 - Зали";
-                label.className = "inline-block mt-1 bg-indigo-600/80 text-[11px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase transition-colors";
-                currentMapState = 'floor2';
+                label.style.background = "#4f46e5";
             } else {
                 mapImg.src = MAP_ZALI;
                 label.innerText = "Етаж 1 - Зали";
-                label.className = "inline-block mt-1 bg-blue-600/80 text-[11px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase transition-colors";
-                currentMapState = 'zali';
+                label.style.background = "#2563eb";
             }
-            document.getElementById('transition-btn').classList.add('hidden');
-            document.getElementById('stairs-btn').classList.add('hidden');
-            spotlight.style.background = 'none';
             resetZoom();
         }
 
         function switchMenu(menuId) {
             document.getElementById('menu-main').classList.add('hidden');
             document.getElementById('menu-services').classList.add('hidden');
-            document.getElementById('menu-halls').classList.add('hidden');
+            document.getElementById('menu-court-rooms').classList.add('hidden');
+            document.getElementById('menu-halls-e1').classList.add('hidden');
+            document.getElementById('menu-floor4-admin').classList.add('hidden');
+            document.getElementById('menu-finance').classList.add('hidden');
             document.getElementById('menu-back-to-main').classList.add('hidden');
             document.getElementById('menu-floor2-halls').classList.add('hidden');
             
