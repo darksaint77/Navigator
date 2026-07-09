@@ -31,7 +31,7 @@
             z-index: 5;
         }
 
-        /* ПОПРАВЕНО: Центрирано разположение и симетричен мащаб */
+        /* Центрирано разположение и симетричен мащаб */
         #zoom-container {
             transform-origin: center center;
             will-change: transform;
@@ -78,8 +78,13 @@
 
             <div class="mt-2 bg-slate-50 border-l-4 border-blue-600 p-3 rounded-xl text-xs text-slate-700 flex flex-col space-y-2 shadow-sm">
                 <div id="instruction-text" class="font-medium leading-relaxed">📍 Изберете дестинация от менюто по-долу:</div>
+                
                 <button id="transition-btn" onclick="enterOfisiSection()" class="hidden w-full bg-emerald-600 hover:bg-emerald-700 text-white text-center font-bold py-2.5 px-3 rounded-xl shadow-md transition-all transform active:scale-95">
                     🔎 Влез в коридора (Виж Бюро съдимост)
+                </button>
+                
+                <button id="stairs-btn" onclick="enterFloor2Section()" class="hidden w-full bg-indigo-600 hover:bg-indigo-700 text-white text-center font-bold py-2.5 px-3 rounded-xl shadow-md transition-all transform active:scale-95">
+                    🏃‍♂️ Качи се на Етаж 2 (Заседателни зали)
                 </button>
             </div>
         </div>
@@ -141,6 +146,19 @@
                 </button>
             </div>
 
+            <div id="menu-floor2-halls" class="space-y-2 w-full hidden">
+                <div class="flex justify-between items-center pb-1">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Етаж 2 - Зали</span>
+                    <button onclick="exitFloor2Section()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3 py-1 rounded-lg shadow transition">⬅ Слез на Етаж 1</button>
+                </div>
+
+                <button onclick="locate('zala5')" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-indigo-200/60 transition">⚖️ Заседателна зала 5 - ОС</button>
+                <button onclick="locate('zala6')" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-indigo-200/60 transition">⚖️ Заседателна зала 6 - ОС</button>
+                <button onclick="locate('zala7')" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-indigo-200/60 transition">⚖️ Заседателна зала 7 - РС</button>
+                <button onclick="locate('zala8')" class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-indigo-200/60 transition">⚖️ Заседателна зала 8 - ОС</button>
+                <button onclick="locate('mediation')" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-4 rounded-xl text-left border border-slate-200/60 transition">🤝 Зала медиация</button>
+            </div>
+
         </div>
 
     </main>
@@ -158,6 +176,8 @@
         
         let MAP_ZALI = "";
         let MAP_OFISI = "";
+        // Снимката вече е пренасочена към твоя официален линк в GitHub
+        let MAP_FLOOR2 = "https://raw.githubusercontent.com/darksaint77/Navigator/main/2-zali.jpg";
         let currentMapState = 'zali';
 
         let scale = 1;
@@ -173,13 +193,12 @@
             MAP_ZALI = mapImg.src;
             MAP_OFISI = baseUrl + "1-ofisi.jpg";
 
-            const preloadImage = new Image();
-            preloadImage.src = MAP_OFISI;
+            new Image().src = MAP_OFISI;
+            new Image().src = MAP_FLOOR2;
             
             updateTransform();
         });
 
-        // Математика за плавно и центрирано местене/зуумване
         function updateTransform() {
             if (scale < 1) scale = 1;
             if (scale > 4) scale = 4;
@@ -188,7 +207,6 @@
                 pointX = 0;
                 pointY = 0;
             } else {
-                // Изчисляване на границите спрямо центрирания мащаб
                 const boundX = (viewport.offsetWidth * scale - viewport.offsetWidth) / 2;
                 const boundY = (viewport.offsetHeight * scale - viewport.offsetHeight) / 2;
 
@@ -222,7 +240,6 @@
             e.preventDefault();
             let zoomFactor = 1.1;
             if (e.deltaY > 0) zoomFactor = 1 / zoomFactor;
-            
             scale *= zoomFactor;
             updateTransform();
         });
@@ -269,8 +286,9 @@
         }
 
         const targets = {
+            // ЕТАЖ 1
             'exit': { map: 'zali', x: 94, y: 35, text: "Насочете се към изхода на съдебната палата през пропуска за граждани." },
-            'stairs_et2': { map: 'zali', x: 53, y: 57, text: "Насочете се към централното стълбище, за да се качите към втория етаж." },
+            'stairs_et2': { map: 'zali', x: 53, y: 57, text: "Насочете се към централното стълбище, за да се качите към втория етаж. Когато стигнете пред стълбите, натиснете бутона по-долу." },
             'prizovkari': { map: 'zali', x: 28, y: 59, text: "Кабинетът на призовкарите се намира на първия етаж." },
             'zala3': { map: 'zali', x: 12, y: 60, text: "Заседателна зала 3 на Районен съд се намира в лявото крило." },
             'reg_os': { map: 'zali', x: 15, y: 29, text: "Регистратурата на Окръжен съд се намира в лявата част на централния салон." },
@@ -279,7 +297,14 @@
             'zala1': { map: 'zali', x: 48, y: 15, text: "Заседателна зала 1 на Районен съд се намира в горния коридор." },
             'zala4': { map: 'zali', x: 70, y: 13, text: "Заседателна зала 4 на Районен съд се намира в горното дясно крило." },
             'sudimost': { map: 'zali', x: 67, y: 90, text: "Продължете по коридора надолу вдясно към прехода за Бюро съдимост. Когато стигнете там, натиснете бутона по-долу." },
-            'sudimost_room': { map: 'ofisi', x: 37, y: 72, text: "Вие сте в секцията с офиси. Бюро съдимост е Стая 105, намираща се в долния коридор." }
+            'sudimost_room': { map: 'ofisi', x: 37, y: 72, text: "Вие сте в секцията с офиси. Бюро съдимост е Стая 105, намираща се в долния коридор." },
+            
+            // ЕТАЖ 2
+            'zala8': { map: 'floor2', x: 84, y: 41, text: "Заседателна зала 8 на Окръжен съд се намира в десния край на коридора на Етаж 2." },
+            'zala5': { map: 'floor2', x: 69, y: 86, text: "Заседателна зала 5 на Окръжен съд се намира на Етаж 2, вдясно по коридора." },
+            'zala6': { map: 'floor2', x: 50, y: 86, text: "Заседателна зала 6 на Окръжен съд се намира на Етаж 2, точно срещу стълбището." },
+            'zala7': { map: 'floor2', x: 12, y: 85, text: "Заседателна зала 7 на Районен съд се намира в левия край на коридора на Етаж 2." },
+            'mediation': { map: 'floor2', x: 24, y: 86, text: "Залата за медиация се намира на Етаж 2, в лявото крило до Зала 7." }
         };
 
         function locate(key) {
@@ -287,9 +312,12 @@
             if (!data) return;
 
             document.getElementById('transition-btn').classList.add('hidden');
+            document.getElementById('stairs-btn').classList.add('hidden');
 
             if (data.map === 'zali' && currentMapState !== 'zali') {
                 switchToMap('zali');
+            } else if (data.map === 'floor2' && currentMapState !== 'floor2') {
+                switchToMap('floor2');
             }
 
             marker.style.left = data.x + "%";
@@ -302,6 +330,8 @@
 
             if (key === 'sudimost') {
                 document.getElementById('transition-btn').classList.remove('hidden');
+            } else if (key === 'stairs_et2') {
+                document.getElementById('stairs-btn').classList.remove('hidden');
             }
         }
 
@@ -314,18 +344,49 @@
         function exitOfisiSection() {
             switchToMap('zali');
             switchMenu('menu-main');
+            clearActiveState();
+        }
+
+        function enterFloor2Section() {
+            switchToMap('floor2');
+            switchMenu('menu-floor2-halls');
+            marker.style.left = "44%";
+            marker.style.top = "45%";
+            marker.classList.remove('hidden');
+            spotlight.style.background = `radial-gradient(circle 50px at 44% 45%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
+            document.getElementById('instruction-text').innerHTML = "<strong>🏛️ Вие сте на Етаж 2:</strong> Изберете съдебна зала от менюто.";
+        }
+
+        function exitFloor2Section() {
+            switchToMap('zali');
+            switchMenu('menu-main');
+            clearActiveState();
+        }
+
+        function clearActiveState() {
             marker.classList.add('hidden');
             spotlight.style.background = 'none';
             document.getElementById('instruction-text').innerText = "📍 Изберете категория от менюто по-долу:";
+            document.getElementById('transition-btn').classList.add('hidden');
+            document.getElementById('stairs-btn').classList.add('hidden');
         }
 
         function switchToMap(mapName) {
             const label = document.getElementById('section-label');
+            
+            // Обезопасяваме филтъра чрез преназначаване на класа, за да форсираме рендирането в браузъра
+            mapImg.className = "max-w-full max-h-full h-auto block select-none premium-map-filter";
+            
             if (mapName === 'ofisi') {
                 mapImg.src = MAP_OFISI;
                 label.innerText = "Етаж 1 - Офиси";
                 label.className = "inline-block mt-1 bg-emerald-600/80 text-[11px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase transition-colors";
                 currentMapState = 'ofisi';
+            } else if (mapName === 'floor2') {
+                mapImg.src = MAP_FLOOR2;
+                label.innerText = "Етаж 2 - Зали";
+                label.className = "inline-block mt-1 bg-indigo-600/80 text-[11px] font-bold px-3 py-0.5 rounded-full tracking-wider uppercase transition-colors";
+                currentMapState = 'floor2';
             } else {
                 mapImg.src = MAP_ZALI;
                 label.innerText = "Етаж 1 - Зали";
@@ -333,6 +394,7 @@
                 currentMapState = 'zali';
             }
             document.getElementById('transition-btn').classList.add('hidden');
+            document.getElementById('stairs-btn').classList.add('hidden');
             spotlight.style.background = 'none';
             resetZoom();
         }
@@ -342,6 +404,7 @@
             document.getElementById('menu-services').classList.add('hidden');
             document.getElementById('menu-halls').classList.add('hidden');
             document.getElementById('menu-back-to-main').classList.add('hidden');
+            document.getElementById('menu-floor2-halls').classList.add('hidden');
             
             document.getElementById(menuId).classList.remove('hidden');
         }
