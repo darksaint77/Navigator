@@ -49,6 +49,7 @@
         #elevator-btn { background: #4f46e5; }
         #stairs-btn { background: #2563eb; }
         #exit-elevator-down-btn { background: #ea580c; }
+        #exit-stairs-down-btn { background: #059669; }
         #exit-to-main-btn { background: #2563eb; }
         
         .menu-wrapper { background: white; padding: 16px; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
@@ -106,6 +107,7 @@
                 <button id="stairs-btn" onclick="enterFloor2Section()" class="nav-action-btn">🏃‍♂️ Качи се на Етаж 2 (Заседателни зали)</button>
                 
                 <button id="exit-elevator-down-btn" onclick="exitActionElevatorDown()" class="nav-action-btn">🛗 Слез с асансьора (Етаж 1)</button>
+                <button id="exit-stairs-down-btn" onclick="exitActionStairsDown()" class="nav-action-btn">🏃‍♂️ Слез по стълбите (Към Изхода на Етаж 1)</button>
                 <button id="exit-to-main-btn" onclick="exitActionToMainHall()" class="nav-action-btn">🚪 Влез в централния салон (Към Изхода)</button>
             </div>
         </div>
@@ -260,7 +262,7 @@
             
             'sudimost_room': { map: 'ofisi', x: 36.5, y: 72.0, text: "Вие сте в секцията с офиси. Бюро съдимост е Стая 105, намираща се в долния коридор." },
             'ispalniteli_room': { map: 'ofisi', x: 34.5, y: 34.5, text: "Вие сте в секцията с офиси. Съдебно изпълнителна служба е Стая 108, намираща се в горния коридор." },
-            'elevator_et1_block': { map: 'ofisi', x: 92.0, y: 78.5, type: 'elevator', text: "Придвижете се до дъното на коридора. Намирате се перед асансьорите. Натиснете бутона отдолу, за да се качите на Етаж 4." },
+            'elevator_et1_block': { map: 'ofisi', x: 92.0, y: 78.5, type: 'elevator', text: "Придвижете се до дъното на коридора. Намирате се пред асансьорите. Натиснете бутона отдолу, за да се качите на Етаж 4." },
 
             'delovodstvo_gt_os': { map: 'zali', x: 66.0, y: 92.0, next: 'elevator_et1_block', final: 'delo_gt_4', text: "За Гражданско деловодство на ОС първо преминете през коридора вдясно към сектора с офисите и асансьорите." },
             'delovodstvo_nak_os': { map: 'zali', x: 66.0, y: 92.0, next: 'elevator_et1_block', final: 'delo_nak_4', text: "За Наказателно деловодство на ОС първо преминете през коридора вдясно към сектора с офисите и асансьорите." },
@@ -278,9 +280,9 @@
             'zala5': { map: 'floor2', x: 69.5, y: 85.5, text: "Заседателна зала 5 на Окръжен съд се намира в долния десен сектор на Етаж 2." },
             'zala8': { map: 'floor2', x: 86.5, y: 41.0, text: "Заседателна зала 8 на Окръжен съд се намира в горния десен коридор на Етаж 2." },
 
-            /* КОРИГИРАНИ КООРДИНАТИ НА ГЛАВНИЯ ИЗХОД НА СГРАДАТА (1-zali.jpg) */
             'exit_building_door': { map: 'zali', x: 91.0, y: 38.0, text: "Вие сте пред ГЛАВНИЯ ИЗХОД на съдебната палата. Благодарим ви, че използвахте навигатора!" },
-            'exit_to_main_hall': { map: 'ofisi', x: 11.5, y: 55.5, text: "Насочете се наляво към прехода в началото на коридора, за да се върнете в Централния салон с главния изход." }
+            'exit_to_main_hall': { map: 'ofisi', x: 12.0, y: 13.0, text: "Насочете се нагоре вляво към прехода, за да се върнете в Централния салон с главния изход." },
+            'transition_back_to_zali': { map: 'zali', x: 62.0, y: 39.0, text: "Върнахте се в централния салон на Етаж 1. Изберете дестинация от категориите по-долу." }
         };
 
         function hideAllActionButtons() {
@@ -288,7 +290,15 @@
             document.getElementById('stairs-btn').style.display = 'none';
             document.getElementById('elevator-btn').style.display = 'none';
             document.getElementById('exit-elevator-down-btn').style.display = 'none';
+            document.getElementById('exit-stairs-down-btn').style.display = 'none';
             document.getElementById('exit-to-main-btn').style.display = 'none';
+        }
+
+        function toggleGlobalExitButton(show) {
+            const exitButtons = document.querySelectorAll('.btn-global-exit');
+            exitButtons.forEach(btn => {
+                btn.style.display = show ? 'block' : 'none';
+            });
         }
 
         function locate(key) {
@@ -296,6 +306,12 @@
             if (!data) return;
 
             hideAllActionButtons();
+
+            if (key === 'exit_building_door') {
+                toggleGlobalExitButton(false);
+            } else {
+                toggleGlobalExitButton(true);
+            }
 
             if (data.map !== currentMapState) {
                 switchToMap(data.map);
@@ -331,14 +347,15 @@
                 spotlight.style.background = `radial-gradient(circle 40px at 91.0% 77.0%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
                 document.getElementById('instruction-text').innerHTML = "<strong>🚪 Към изхода:</strong> Насочете се към асансьора на Етаж 4, за да слезете на първия етаж.";
                 document.getElementById('exit-elevator-down-btn').style.display = 'block';
+                toggleGlobalExitButton(true);
             } 
             else if (currentMapState === 'floor2') {
-                marker.style.left = "44%"; marker.style.top = "44%";
+                marker.style.left = "46.0%"; marker.style.top = "43.0%";
                 marker.style.display = 'block';
-                spotlight.style.background = `radial-gradient(circle 40px at 44% 44%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
-                document.getElementById('instruction-text').innerHTML = "<strong>🚪 Към изхода:</strong> Насочете се към централното стълбище и слезте до Етаж 1.";
-                enterFloor2Section(); 
-                document.querySelector('#menu-floor2-halls .btn-back').scrollIntoView({behavior: 'smooth'});
+                spotlight.style.background = `radial-gradient(circle 40px at 46.0% 43.0%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
+                document.getElementById('instruction-text').innerHTML = "<strong>🚪 Към изхода:</strong> Насочете се към стълбището на Етаж 2, за да слезете до долния етаж.";
+                document.getElementById('exit-stairs-down-btn').style.display = 'block';
+                toggleGlobalExitButton(true);
             } 
             else if (currentMapState === 'ofisi') {
                 locate('exit_to_main_hall');
@@ -349,6 +366,12 @@
             }
         }
 
+        function exitActionStairsDown() {
+            switchToMap('zali');
+            switchMenu('menu-main');
+            locate('exit_building_door');
+        }
+
         function exitActionElevatorDown() {
             switchToMap('ofisi');
             switchMenu('menu-back-to-main');
@@ -356,6 +379,7 @@
             document.getElementById('instruction-text').innerHTML = "<strong>🚪 Към изхода:</strong> Излязохте от асансьора на Етаж 1. Сега вървете по коридора наляво към Централния салон.";
             document.getElementById('elevator-btn').style.display = 'none';
             document.getElementById('exit-to-main-btn').style.display = 'block';
+            toggleGlobalExitButton(true);
         }
 
         function exitActionToMainHall() {
@@ -388,21 +412,27 @@
             }
         }
 
+        /* ПОПРАВКА: При влизане на Етаж 2 скриваме напълно синия бутон "Качи се на Етаж 2", тъй като потребителят е вече там */
         function enterFloor2Section() {
             switchToMap('floor2');
             switchMenu('menu-floor2-halls');
             savedFinalTarget = '';
+            
+            // Подсигуряваме, че бутонът за качване няма да се вижда
+            document.getElementById('stairs-btn').style.display = 'none';
+            
             marker.style.left = "44%"; marker.style.top = "44%";
             marker.style.display = 'block';
             spotlight.style.background = `radial-gradient(circle 40px at 44% 44%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
-            document.getElementById('instruction-text').innerHTML = "<strong>🏛️ Вие сте на Етаж 2:</strong> Изберете съдебна зала от списъка в менюто.";
+            document.getElementById('instruction-text').innerHTML = "<strong>💡 Вие сте на Етаж 2:</strong> Изберете съдебна зала от списъка в менюто.";
+            toggleGlobalExitButton(true);
         }
 
         function exitToMainSection() {
             switchToMap('zali');
             switchMenu('menu-main');
             savedFinalTarget = '';
-            clearActiveState();
+            locate('transition_back_to_zali');
         }
 
         function clearActiveState() {
@@ -410,6 +440,7 @@
             spotlight.style.background = 'none';
             document.getElementById('instruction-text').innerText = "📍 Изберете дестинация от менюто по-долу:";
             hideAllActionButtons();
+            toggleGlobalExitButton(true);
         }
 
         function switchToMap(mapName) {
