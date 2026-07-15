@@ -53,7 +53,8 @@
         #exit-stairs-down-btn { background: #059669; }
         #exit-stairs-ofisi-down-btn { background: #ea580c; }
         #exit-to-main-btn { background: #2563eb; }
-        #stairs-floor4-to-2-btn { background: #ea580c; } /* Нов бутон */
+        #stairs-floor4-to-2-btn { background: #ea580c; }
+        #stairs-floor2-to-4-btn { background: #7c3aed; }
         
         .menu-wrapper { background: white; padding: 16px; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         .menu-title { font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
@@ -129,6 +130,7 @@
                 <button id="exit-to-main-btn" onclick="startTwoStepExitTransition()" class="nav-action-btn">🚪 Влезте в централния салон (Към Изхода)</button>
                 
                 <button id="stairs-floor4-to-2-btn" onclick="exitActionFloor4To2Stairs()" class="nav-action-btn">🏃‍♂️ Слезте по стълбите (Към Етаж 2)</button>
+                <button id="stairs-floor2-to-4-btn" onclick="enterFloor4FromFloor2Stairs()" class="nav-action-btn">🏃‍♂️ Качете се по стълбите (Към Етаж 4)</button>
             </div>
         </div>
 
@@ -144,7 +146,7 @@
 
             <div id="menu-services" class="menu-section hidden">
                 <button onclick="triggerBuildingExit()" class="btn-global-exit">🚪 Изход от съдебната палата</button>
-                <div class="menu-title"><span>Регистратури и услуги</span><button onclick="switchMenu('menu-main')" class="btn-back">⬅ Назад</button></div>
+                <div class="menu-title"><span>Регистратури и услуги</span><button onclick="backFromServices()" class="btn-back">⬅ Назад</button></div>
                 <button onclick="locate('reg_os', this)" class="btn-item">📥 Регистратура Окръжен съд</button>
                 <button onclick="locate('reg_rs', this)" class="btn-item">📥 Регистратура Районен съд</button>
                 <button onclick="locate('reg_prokuratura', this)" class="btn-item">📥 Регистратура Прокуратура</button>
@@ -189,6 +191,11 @@
             <div id="menu-back-to-main" class="menu-section hidden" style="text-align:center;">
                 <button onclick="startTwoStepExitTransition()" class="btn-global-exit" style="margin-bottom: 8px;">🚪 ИЗХОД ОТ СЪДЕБНАТА ПАЛАТА</button>
                 <div class="hint-text" style="margin-bottom: 6px;">Намирате се в сектор Офиси / Долен коридор</div>
+                
+                <button onclick="locate('sudimost_room', this)" class="btn-item" style="margin-bottom: 4px;">📜 Бюро съдимост</button>
+                <button onclick="locate('ispalniteli_room', this)" class="btn-item" style="margin-bottom: 4px;">💼 Съдебно изпълнителна служба</button>
+                <button onclick="locate('schetovodstvo_rs_room', this)" class="btn-item" style="margin-bottom: 6px;">💰 Счетоводство Районен съд</button>
+                
                 <button id="danger-exit-btn" onclick="returnToCentralSalonMiddle()" class="btn-back-danger">⬅ Върни се в централния салон</button>
             </div>
 
@@ -207,6 +214,10 @@
                 <div class="menu-title"><span>Етаж 2 - Офиси</span><button onclick="backFromFloor2Ofisi()" class="btn-back" style="background:#e11d48;">⬅ Слез на Етаж 1</button></div>
                 <button onclick="locate('delo_gt_2', this)" class="btn-item">📂 Гражданско деловодство Районен съд</button>
                 <button onclick="locate('delo_nak_2', this)" class="btn-item">📂 Наказателно деловодство Районен съд</button>
+                <hr style="border: 0; border-top: 1px dashed #cbd5e1; margin: 4px 0;">
+                <div style="font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin: 2px 0;">Бърз преход към Окръжен съд:</div>
+                <button onclick="locate('delovodstvo_gt_os', this)" class="btn-item" style="border-color: #c084fc; background: #faf5ff;">📂 Гражданско и Търговско деловодство ОС (Етаж 4)</button>
+                <button onclick="locate('delovodstvo_nak_os', this)" class="btn-item" style="border-color: #c084fc; background: #faf5ff;">📂 Наказателно деловодство ОС (Етаж 4)</button>
             </div>
         </div>
 
@@ -292,7 +303,7 @@
             
             'sudimost': { map: 'zali', x: 66.0, y: 92.0, next: 'sudimost_room', text: "Продължете по коридора надолу. Когато преминете там, натиснете бутона отдолу." },
             'ispalniteli': { map: 'zali', x: 66.0, y: 92.0, next: 'ispalniteli_room', text: "Продължете по коридора надолу. Когато преминете там, натиснете бутона отдолу." },
-            'stairs_et2': { map: 'zali', x: 53.0, y: 56.0, next: 'floor2_welcome', text: "Насочете се към стълбището в централния салон и се качете горе." },
+            'stairs_et2': { map: 'zali', x: 53.0, y: 56.0, next: 'floor2_welcome', text: "Насочете се към стълбището в centralния салон и се качете горе." },
             
             'schetovodstvo_rs': { map: 'zali', x: 66.0, y: 92.0, next: 'schetovodstvo_rs_room', text: "Продължете по коридора надолу. Когато преминете там, натиснете бутона отдолу." },
             'schetovodstvo_rs_room': { map: 'ofisi', x: 72.5, y: 72.0, text: "Счетоводството на Районен съд се намира в Стая 101, отдясно в края на коридора." },
@@ -318,8 +329,9 @@
             'schet_os_4': { map: 'floor4', x: 67.5, y: 23.0, text: "Счетоводството на Окръжен съд се намира в Стая 411." },
             'delo_nak_4': { map: 'floor4', x: 66.5, y: 78.5, text: "Наказателното деловодство на Окръжен съд се намира в Стая 401." },
             
-            // Нова точка за стълбите на Етаж 4, водещи надолу
             'stairs_floor4_down': { map: 'floor4', x: 78.0, y: 75.0, text: "Придвижете се до вътрешното стълбище на Етаж 4. Натиснете бутона отдолу, за да слезете директно на Етаж 2." },
+            
+            'stairs_floor2_to_4': { map: 'floor2_ofisi', x: 80.0, y: 73.0, text: "Придвижете се до вътрешното стълбище на Етаж 2. Натиснете бутона отдолу, за да се качите директно на Етаж 4." },
             
             'zala7': { map: 'floor2', x: 11.0, y: 85.5, text: "Заседателна зала 7 на Районен съд се намира в долния ляв ъгъл на Етаж 2." },
             'mediation': { map: 'floor2', x: 23.5, y: 85.5, text: "Залата за медиация се намира на Етаж 2, веднага до Зала 7." },
@@ -340,6 +352,7 @@
             document.getElementById('exit-stairs-ofisi-down-btn').style.display = 'none';
             document.getElementById('exit-to-main-btn').style.display = 'none';
             document.getElementById('stairs-floor4-to-2-btn').style.display = 'none';
+            document.getElementById('stairs-floor2-to-4-btn').style.display = 'none';
         }
 
         function toggleGlobalExitButton(show) {
@@ -382,14 +395,12 @@
                 targetMap = targets[data.final].map;
             }
 
-            // Директен преход на един и същ етаж (Етаж 4)
             if (currentMapState === 'floor4' && targetMap === 'floor4') {
                 if (data.final) {
                     key = data.final;
                     data = targets[key];
                 }
             }
-            // Директен преход на един и същ етаж (Етаж 2 - Офиси)
             else if (currentMapState === 'floor2_ofisi' && targetMap === 'floor2_ofisi') {
                 if (data.final) {
                     key = data.final;
@@ -397,23 +408,35 @@
                 }
             }
             
-            // --- КОРЕКЦИЯ: Оптимизиран преход от Етаж 4 до Етаж 2 по стълбите ---
             if (currentMapState === 'floor4' && targetMap === 'floor2_ofisi') {
                 hideAllActionButtons();
                 toggleGlobalExitButton(false);
                 
-                // Извеждаме маркера на стълбите на Етаж 4
                 marker.style.left = "78.0%"; marker.style.top = "75.0%";
                 marker.style.display = 'block';
                 spotlight.style.background = `radial-gradient(circle 50px at 78.0% 75.0%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
                 
                 document.getElementById('instruction-text').innerHTML = `<strong>🏃‍♂️ Бързо слизане:</strong> За да стигнете до деловодствата на Районен съд на Етаж 2, отидете до вътрешното стълбище на Етаж 4 и слезте надолу.`;
                 
-                savedFinalTarget = data.final || key; // запазваме реалната дестинация (напр. delo_gt_2)
+                savedFinalTarget = data.final || key;
                 document.getElementById('stairs-floor4-to-2-btn').style.display = 'block';
                 return;
             }
-            // ------------------------------------------------------------------
+
+            if (currentMapState === 'floor2_ofisi' && targetMap === 'floor4') {
+                hideAllActionButtons();
+                toggleGlobalExitButton(false);
+
+                marker.style.left = "80.0%"; marker.style.top = "73.0%";
+                marker.style.display = 'block';
+                spotlight.style.background = `radial-gradient(circle 50px at 80.0% 73.0%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
+
+                document.getElementById('instruction-text').innerHTML = `<strong>🏃‍♂️ Бързо изкачване:</strong> За да стигнете до деловодствата/счетоводството на Окръжен съд на Етаж 4, отидете до вътрешното стълбище на Етаж 2 &mdash; качете се нагоре.`;
+
+                savedFinalTarget = data.final || key;
+                document.getElementById('stairs-floor2-to-4-btn').style.display = 'block';
+                return;
+            }
 
             if (currentMapState === 'ofisi' && data.map === 'zali' && key !== 'exit_building_door') {
                 hideAllActionButtons();
@@ -445,7 +468,7 @@
                 return;
             }
 
-            if (currentMapState === 'floor2_ofisi' && targetMap !== 'floor2_ofisi') {
+            if (currentMapState === 'floor2_ofisi' && targetMap !== 'floor2_ofisi' && targetMap !== 'floor4') {
                 hideAllActionButtons();
                 toggleGlobalExitButton(false);
                 
@@ -491,19 +514,37 @@
             }
         }
 
-        // Функция за извършване на прехода от Етаж 4 до Етаж 2 по стълбите
         function exitActionFloor4To2Stairs() {
             hideAllActionButtons();
             switchToMap('floor2_ofisi');
             switchMenu('menu-floor2-ofisi');
             
-            // Поставяме потребителя на стълбите на Етаж 2
             marker.style.left = "79.0%"; marker.style.top = "75.0%";
             marker.style.display = 'block';
             spotlight.style.background = `radial-gradient(circle 50px at 79.0% 75.0%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
             
             document.getElementById('instruction-text').innerHTML = "<strong>🚪 Преход успешен:</strong> Слязохте по стълбите на Етаж 2. Сега навигаторът ще ви поведе към избрания офис.";
             
+            setTimeout(() => {
+                if (savedFinalTarget) {
+                    let final = savedFinalTarget;
+                    savedFinalTarget = '';
+                    locate(final);
+                }
+            }, 1200);
+        }
+
+        function enterFloor4FromFloor2Stairs() {
+            hideAllActionButtons();
+            switchToMap('floor4');
+            switchMenu('menu-floor4-admin');
+
+            marker.style.left = "78.0%"; marker.style.top = "75.0%";
+            marker.style.display = 'block';
+            spotlight.style.background = `radial-gradient(circle 50px at 78.0% 75.0%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
+
+            document.getElementById('instruction-text').innerHTML = "<strong>🚪 Преход успешен:</strong> Качихте се по стълбите на Етаж 4. Сега навигаторът ще ви поведе към избрания сектор.";
+
             setTimeout(() => {
                 if (savedFinalTarget) {
                     let final = savedFinalTarget;
@@ -548,6 +589,19 @@
         }
 
         function returnToCentralSalonMiddle() {
+            switchToMap('zali');
+            switchMenu('menu-main');
+            savedFinalTarget = '';
+            isNavigatingToExit = false;
+            clearActiveButtonStyling();
+            
+            marker.style.left = "63%"; marker.style.top = "40%";
+            marker.style.display = 'block';
+            spotlight.style.background = `radial-gradient(circle 50px at 63% 40%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
+            document.getElementById('instruction-text').innerHTML = "📍 Върнахте се в централния салон на Етаж 1. Изберете нова дестинация от менюто.";
+        }
+
+        function backFromServices() {
             switchToMap('zali');
             switchMenu('menu-main');
             savedFinalTarget = '';
@@ -625,7 +679,12 @@
             switchToMap('ofisi');
             switchMenu('menu-back-to-main');
             savedFinalTarget = '';
-            locate('stairs_ofisi_et1');
+            
+            hideAllActionButtons();
+            marker.style.left = "79.0%"; marker.style.top = "70.0%";
+            marker.style.display = 'block';
+            spotlight.style.background = `radial-gradient(circle 50px at 79.0% 70.0%, rgba(255,255,255,1) 0%, rgba(200,205,215,0.85) 100%)`;
+            document.getElementById('instruction-text').innerHTML = "<strong>🚪 Слизане успешно:</strong> Слязохте на Етаж 1 (Офиси). Изберете кабинет от списъка или отидете към Централния салон.";
         }
 
         function enterFloor4Section() {
